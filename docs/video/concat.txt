@@ -1,0 +1,5 @@
+file 'seg-card-title.mp4'
+file 'turntable-model1-sword-pendant.mp4'
+file 'seg-card-compare.mp4'
+file 'turntable-model2-wreath.mp4'
+file 'seg-card-end.mp4'
