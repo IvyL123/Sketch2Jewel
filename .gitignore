@@ -4,3 +4,10 @@ Thumbs.db
 convert.py
 split_sketch.ps1
 urls.txt
+docs/video/frames*/
+docs/video/glb-task*.glb
+docs/video/m1-yaw-*.jpg
+docs/video/m2-yaw-*.jpg
+docs/video/task2-standalone.jpg
+app/_m1.glb
+app/_check-*.glb

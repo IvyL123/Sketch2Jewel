@@ -707,7 +707,7 @@
           jerr("获取上传凭证失败", r);
         }
         var o = JSON.parse(r.text);
-        if (o.c !== "0" || !o.ousToken || !o.globalDomain) throw new Error("上传凭证异常：" + (o.m || r.text.slice(0, 80)));
+        if (!o.ousToken || !o.globalDomain) throw new Error("上传凭证异常：" + (o.m || r.text.slice(0, 80)));
         return { token: o.ousToken, domain: o.globalDomain, md5: digest };
       });
     }).then(function (up) {
@@ -795,8 +795,7 @@
       });
     }).then(function (buf) {
       var name = file.name.replace(/\.[^.]+$/, "") + "-" + engine + ".glb";
-      loadGLBArrayBuffer(buf, name);
-      setTimeout(function () { galleryAdd(name, buf); }, 400);
+      loadGLBArrayBuffer(buf, name);   // 内部已入胶片栏
       apilog("✅ 完成！模型已进入预览与质检");
       toast("Lux3D 生成完成 ✨");
       $("btnGenerate").disabled = false;
