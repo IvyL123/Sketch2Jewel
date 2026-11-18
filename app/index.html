@@ -89,6 +89,31 @@
     position: absolute; left: 14px; bottom: 14px; display: flex; gap: 8px;
   }
   .viewport .bar button { width: auto; padding: 7px 12px; font-size: 12px; background: rgba(20,17,28,.85); }
+  #sketchFloat {
+    position: absolute; top: 12px; right: 14px; width: 148px;
+    border: 1px solid #4a4258; border-radius: 10px; overflow: hidden;
+    background: rgba(20,17,28,.88); display: none;
+    box-shadow: 0 4px 18px rgba(0,0,0,.5);
+  }
+  #sketchFloat img { width: 100%; display: block; }
+  #sketchFloat .cap {
+    font-size: 11px; color: var(--muted); text-align: center; padding: 5px 4px;
+    border-top: 1px solid #35303f;
+  }
+  #filmstrip {
+    position: absolute; left: 14px; top: 12px; display: none; gap: 8px; z-index: 5;
+  }
+  #filmstrip .cell {
+    width: 64px; height: 64px; border: 2px solid #4a4258; border-radius: 8px;
+    background: #171420; cursor: pointer; overflow: hidden; position: relative;
+    display: flex; align-items: center; justify-content: center; font-size: 22px;
+  }
+  #filmstrip .cell.active { border-color: var(--gold); }
+  #filmstrip .cell img { width: 100%; height: 100%; object-fit: cover; }
+  #filmstrip .cell .lbl {
+    position: absolute; bottom: 0; left: 0; right: 0; font-size: 9px;
+    background: rgba(13,11,19,.8); color: #d8d2e2; text-align: center; padding: 1px 0;
+  }
   #statusline {
     position: absolute; top: 12px; left: 14px; font-size: 12px; color: var(--muted);
     background: rgba(20,17,28,.75); padding: 4px 10px; border-radius: 14px;
@@ -168,6 +193,8 @@
       <div class="big">💍</div>
       <div>还没有模型 —— 上传草图生成，或载入示例</div>
     </div>
+    <div id="filmstrip"></div>
+    <div id="sketchFloat"><img id="sketchFloatImg" alt="原草图"><div class="cap">原草图 ↔ 生成模型</div></div>
     <div id="statusline">未加载模型</div>
     <div class="bar">
       <button id="btnSpin">暂停转台</button>
@@ -320,14 +347,57 @@
     $("btnPng").disabled = false;
   }
 
-  function loadGLBArrayBuffer(buf, name) {
+  function loadGLBArrayBuffer(buf, name, skipGallery) {
     setStatus("解析 " + name + " …");
     new THREE.GLTFLoader().parse(buf, "", function (gltf) {
       prepare(gltf.scene);
+      if (!skipGallery) {
+        setTimeout(function () { galleryAdd(name, buf); }, 250);
+      }
       toast("模型载入成功");
     }, function (err) {
       setStatus("解析失败");
       toast("GLB 解析失败：" + (err && err.message ? err.message : "未知错误"));
+    });
+  }
+
+  /* ---------------- 作品集胶片栏 ---------------- */
+  var gallery = [];       // {name, buf, thumb, btn}
+  function galleryThumb() {
+    try {
+      renderer.render(scene, camera);
+      return renderer.domElement.toDataURL("image/jpeg", 0.6);
+    } catch (e) { return null; }
+  }
+  function galleryAdd(name, buf) {
+    var thumb = galleryThumb();
+    gallery.push({ name: name, buf: buf, thumb: thumb });
+    if (gallery.length > 8) gallery.shift();
+    galleryRender(name);
+  }
+  function galleryRender(activeName) {
+    var fs = $("filmstrip");
+    fs.innerHTML = "";
+    fs.style.display = gallery.length ? "flex" : "none";
+    gallery.forEach(function (g) {
+      var cell = document.createElement("div");
+      cell.className = "cell" + (g.name === activeName ? " active" : "");
+      cell.title = g.name;
+      if (g.thumb) {
+        var im = document.createElement("img"); im.src = g.thumb; cell.appendChild(im);
+      } else {
+        cell.textContent = "💎";
+      }
+      var lbl = document.createElement("div");
+      lbl.className = "lbl";
+      lbl.textContent = g.name.length > 8 ? g.name.slice(0, 7) + "…" : g.name;
+      cell.appendChild(lbl);
+      cell.addEventListener("click", function () {
+        if (g.buf) loadGLBArrayBuffer(g.buf, g.name, true);
+        else loadDemo();
+        galleryRender(g.name);
+      });
+      fs.appendChild(cell);
     });
   }
 
@@ -340,6 +410,7 @@
     mesh.name = "示例件";
     var g = new THREE.Group(); g.add(mesh);
     prepare(g);
+    setTimeout(function () { galleryAdd("示例件", null); }, 250);
     toast("示例模型已载入（金色调）");
   }
 
@@ -451,6 +522,8 @@
     img.src = url; img.style.display = "block";
     $("sketchDrop").firstChild.textContent = "草图已就绪 ✓ ";
     $("btnGenerate").disabled = false;
+    $("sketchFloatImg").src = url;
+    $("sketchFloat").style.display = "block";   // 视口内草图↔模型同框
     toast("草图已上传：" + file.name);
     window._sketch = file;
   });
