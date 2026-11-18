@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>一笔成珠 · Sketch2Jewel — 从手绘草图到可打样的 3D 珠宝</title>
+<style>
+  :root {
+    --bg: #12101a;
+    --panel: #1c1926;
+    --panel2: #242030;
+    --gold: #d4a94e;
+    --gold-bright: #ecc778;
+    --silver: #c8ccd6;
+    --text: #ece8f0;
+    --muted: #9a94a8;
+    --ok: #6fce8f;
+    --warn: #e2a24a;
+    --bad: #e26a6a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: radial-gradient(ellipse at 30% 0%, #1f1a2e 0%, var(--bg) 55%);
+    color: var(--text);
+    font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+  }
+  header {
+    padding: 18px 28px 14px;
+    border-bottom: 1px solid #2c2738;
+    display: flex; align-items: baseline; gap: 14px;
+  }
+  header h1 { font-size: 22px; letter-spacing: 2px; color: var(--gold-bright); font-weight: 600; }
+  header .sub { color: var(--muted); font-size: 13px; }
+  header .tag {
+    margin-left: auto; font-size: 12px; color: var(--muted);
+    border: 1px solid #35303f; border-radius: 20px; padding: 4px 12px;
+  }
+  main { flex: 1; display: grid; grid-template-columns: 320px 1fr 360px; gap: 0; min-height: 0; }
+  .col { padding: 18px; overflow-y: auto; border-right: 1px solid #262130; }
+  .col:last-child { border-right: none; border-left: 1px solid #262130; }
+  .step { margin-bottom: 22px; }
+  .step h3 {
+    font-size: 13px; color: var(--gold); letter-spacing: 1px; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .step h3 .num {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: #2e2940; color: var(--gold-bright);
+    display: inline-flex; align-items: center; justify-content: center; font-size: 12px;
+  }
+  .drop {
+    border: 1.5px dashed #4a4258; border-radius: 10px; padding: 18px 12px;
+    text-align: center; color: var(--muted); font-size: 13px; cursor: pointer;
+    transition: border-color .2s;
+  }
+  .drop:hover, .drop.over { border-color: var(--gold); color: var(--text); }
+  .drop img { max-width: 100%; max-height: 180px; border-radius: 6px; margin-top: 8px; display: none; }
+  button, .btn {
+    background: linear-gradient(180deg, #2e2940, #262033);
+    color: var(--text); border: 1px solid #443c55; border-radius: 8px;
+    padding: 9px 14px; font-size: 13px; cursor: pointer; width: 100%;
+    transition: all .15s; font-family: inherit;
+  }
+  button:hover:not(:disabled) { border-color: var(--gold); color: var(--gold-bright); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button.primary { background: linear-gradient(180deg, #8a6c2c, #6e5522); border-color: var(--gold); color: #fff; }
+  button.primary:hover { background: linear-gradient(180deg, #9c7c34, #7d6327); color: #fff; }
+  .hint { font-size: 12px; color: var(--muted); line-height: 1.7; margin-top: 8px; }
+  .hint a { color: var(--gold-bright); text-decoration: none; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+  .tabs button { padding: 7px 6px; font-size: 12px; }
+  .tabs button.active { border-color: var(--gold); color: var(--gold-bright); }
+  input[type=text], input[type=number] {
+    width: 100%; background: #171420; border: 1px solid #3c3550; border-radius: 8px;
+    color: var(--text); padding: 8px 10px; font-size: 13px; font-family: inherit;
+  }
+  input:focus { outline: none; border-color: var(--gold); }
+  label.f { display: block; font-size: 12px; color: var(--muted); margin: 10px 0 4px; }
+  .viewport { position: relative; background: #0d0b13; }
+  .viewport canvas { display: block; }
+  .viewport .empty {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; color: #56506a; gap: 12px;
+  }
+  .viewport .empty .big { font-size: 40px; }
+  .viewport .bar {
+    position: absolute; left: 14px; bottom: 14px; display: flex; gap: 8px;
+  }
+  .viewport .bar button { width: auto; padding: 7px 12px; font-size: 12px; background: rgba(20,17,28,.85); }
+  #statusline {
+    position: absolute; top: 12px; left: 14px; font-size: 12px; color: var(--muted);
+    background: rgba(20,17,28,.75); padding: 4px 10px; border-radius: 14px;
+  }
+  .card {
+    background: var(--panel); border: 1px solid #2e2940; border-radius: 10px;
+    padding: 14px; margin-bottom: 14px;
+  }
+  .card h4 { font-size: 13px; color: var(--gold); margin-bottom: 10px; letter-spacing: 1px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  td { padding: 5px 2px; border-bottom: 1px solid #262130; }
+  td:first-child { color: var(--muted); width: 46%; }
+  td:last-child { color: var(--text); text-align: right; }
+  .pill { display: inline-block; padding: 1px 9px; border-radius: 10px; font-size: 11.5px; }
+  .pill.ok { background: rgba(111,206,143,.15); color: var(--ok); }
+  .pill.warn { background: rgba(226,162,74,.15); color: var(--warn); }
+  .pill.bad { background: rgba(226,106,106,.15); color: var(--bad); }
+  .pill.idle { background: #2a2536; color: var(--muted); }
+  .actions { display: flex; flex-direction: column; gap: 8px; }
+  .foot { padding: 10px 28px; font-size: 11.5px; color: #6a6478; border-top: 1px solid #262130; }
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: #2e2940; border: 1px solid var(--gold); color: var(--gold-bright);
+    padding: 10px 22px; border-radius: 24px; font-size: 13px; display: none; z-index: 99;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>一笔成珠 Sketch2Jewel</h1>
+  <span class="sub">让只会画平面草图的设计师，拿到能发给工厂打样的 3D 模型</span>
+  <span class="tag">Aholo 黑客松参赛原型 · 3D 生成由 Aholo Lux3D 驱动</span>
+</header>
+
+<main>
+  <!-- 左栏：流程 -->
+  <div class="col">
+    <div class="step">
+      <h3><span class="num">1</span>上传设计草图</h3>
+      <div class="drop" id="sketchDrop">
+        拖入草图图片，或点击选择<br><small>jpg / png / webp</small>
+        <img id="sketchThumb" alt="草图预览">
+      </div>
+      <input type="file" id="sketchFile" accept="image/*" style="display:none">
+      <div class="hint">支持手绘线稿、平板绘画。颜色即语义：<b style="color:var(--gold-bright)">黄=金色件</b>、灰=银色件、<b style="color:#b39ddb">紫=宝石</b>。</div>
+    </div>
+
+    <div class="step">
+      <h3><span class="num">2</span>生成 3D 模型</h3>
+      <div class="tabs">
+        <button id="tabApi" class="active">自动 · Lux3D API</button>
+        <button id="tabManual">联动 · 官网生成</button>
+      </div>
+      <div id="paneApi">
+        <label class="f">Lux3D API Key</label>
+        <input type="text" id="apiKey" placeholder="aholo_api_xxxxxxxx">
+        <label class="f">期望整体尺寸（最长边，毫米）</label>
+        <input type="number" id="targetSize" value="40" min="10" max="120">
+        <div style="margin-top:10px"><button class="primary" id="btnGenerate" disabled>调用 Lux3D 生成</button></div>
+        <div class="hint" id="apiHint">报名黑客松获取积分后即可调用 img-to-3d 接口。生成约 1–5 分钟，可关闭页面稍后回来。</div>
+      </div>
+      <div id="paneManual" style="display:none">
+        <div class="hint">① 点击下方按钮在官网用草图生成模型 → ② 官网下载 GLB 文件 → ③ 把 GLB 拖入下方框。平台负责预览、质检与交付。</div>
+        <div style="margin:10px 0"><button id="btnOpenLux">打开 Aholo Lux3D ↗</button></div>
+        <div class="drop" id="glbDrop">拖入 Lux3D 下载的 .glb 文件<br><small>或点击选择</small></div>
+        <input type="file" id="glbFile" accept=".glb,.gltf" style="display:none">
+      </div>
+      <div class="hint" style="margin-top:14px">
+        还没有任何模型？<a href="#" id="btnDemo">载入示例模型</a> 先体验质检与导出流程。
+      </div>
+    </div>
+  </div>
+
+  <!-- 中间：3D 视口 -->
+  <div class="viewport" id="viewport">
+    <div class="empty" id="vpEmpty">
+      <div class="big">💍</div>
+      <div>还没有模型 —— 上传草图生成，或载入示例</div>
+    </div>
+    <div id="statusline">未加载模型</div>
+    <div class="bar">
+      <button id="btnSpin">暂停转台</button>
+      <button id="btnReset">复位视角</button>
+    </div>
+  </div>
+
+  <!-- 右栏：交付单 -->
+  <div class="col">
+    <div class="card">
+      <h4>工厂交付单 · Factory Sheet</h4>
+      <table id="sheetBase">
+        <tr><td>模型状态</td><td><span class="pill idle" id="pillState">待载入</span></td></tr>
+        <tr><td>网格三角形</td><td id="vTris">—</td></tr>
+        <tr><td>网格部件数</td><td id="vParts">—</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h4>尺寸标定</h4>
+      <label class="f">目标整体最长边（mm）</label>
+      <input type="number" id="calSize" value="40" min="5" max="200">
+      <div class="hint">AI 生成模型无绝对尺度，按目标佩戴尺寸等比标定。</div>
+      <table id="sheetSize" style="margin-top:8px">
+        <tr><td>长 × 宽 × 高 (mm)</td><td id="vDims">—</td></tr>
+        <tr><td>实体体积 (cm³)</td><td id="vVol">—</td></tr>
+        <tr><td>估重 · 925 银 (g)</td><td id="vWt">—</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h4>可制造性初检</h4>
+      <table>
+        <tr><td>水密性（可否出蜡模）</td><td><span class="pill idle" id="pillWatertight">待检</span></td></tr>
+        <tr><td>开放边界边</td><td id="vBoundary">—</td></tr>
+        <tr><td>最薄风险提示</td><td id="vThin">—</td></tr>
+      </table>
+      <div class="hint">初检为几何粗查，替代不了工厂工程评审。</div>
+    </div>
+    <div class="card">
+      <h4>导出</h4>
+      <div class="actions">
+        <button class="primary" id="btnStl" disabled>下载打样 STL（按标定尺寸）</button>
+        <button id="btnPng" disabled>保存渲染图（报告用）</button>
+      </div>
+    </div>
+  </div>
+</main>
+<div class="foot">一笔成珠 Sketch2Jewel — 2026 群核 Aholo 全球 3D AI 黑客松参赛原型 · 生成能力来自 Aholo Lux3D（img-to-3d）· 本页完全离线可用</div>
+<div class="toast" id="toast"></div>
+
+<script src="lib/three.min.js"></script>
+<script src="lib/GLTFLoader.js"></script>
+<script src="lib/STLExporter.js"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  function toast(msg, ms) {
+    var t = $("toast"); t.textContent = msg; t.style.display = "block";
+    clearTimeout(t._h); t._h = setTimeout(function () { t.style.display = "none"; }, ms || 2600);
+  }
+
+  /* ---------------- 场景 ---------------- */
+  var vp = $("viewport");
+  var renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setClearColor(0x0d0b13);
+  vp.appendChild(renderer.domElement);
+
+  var scene = new THREE.Scene();
+  var camera = new THREE.PerspectiveCamera(42, 1, 0.1, 5000);
+  var modelRoot = new THREE.Group();      // 转台旋转组
+  var model = null;                        // 当前模型 Object3D
+  var modelTris = 0, modelParts = 0;
+  var spin = true, spinSpeed = 0.006;
+  scene.add(modelRoot);
+  scene.add(new THREE.HemisphereLight(0x8888aa, 0x2a2438, 0.9));
+  var key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(2, 3, 4); scene.add(key);
+  var fill = new THREE.DirectionalLight(0xd4a94e, 0.35); fill.position.set(-3, 1, 2); scene.add(fill);
+  var rim = new THREE.DirectionalLight(0x8899ff, 0.5); rim.position.set(0, 2, -4); scene.add(rim);
+
+  function resize() {
+    var w = vp.clientWidth, h = vp.clientHeight;
+    renderer.setSize(w, h);
+    camera.aspect = w / h; camera.updateProjectionMatrix();
+  }
+  window.addEventListener("resize", resize);
+
+  camera.position.set(0, 0.6, 3);
+
+  /* 简易轨道：拖拽旋转 + 滚轮缩放 */
+  var drag = null, theta = 0.6, phi = 0.25, dist = 3;
+  function applyCam() {
+    camera.position.set(
+      dist * Math.sin(theta) * Math.cos(phi),
+      dist * Math.sin(phi),
+      dist * Math.cos(theta) * Math.cos(phi));
+    camera.lookAt(0, 0, 0);
+  }
+  applyCam();
+  vp.addEventListener("mousedown", function (e) { drag = { x: e.clientX, y: e.clientY }; });
+  window.addEventListener("mousemove", function (e) {
+    if (!drag) return;
+    theta -= (e.clientX - drag.x) * 0.008;
+    phi = Math.min(1.4, Math.max(-1.4, phi + (e.clientY - drag.y) * 0.008));
+    drag = { x: e.clientX, y: e.clientY };
+    applyCam();
+  });
+  window.addEventListener("mouseup", function () { drag = null; });
+  vp.addEventListener("wheel", function (e) {
+    e.preventDefault();
+    dist = Math.min(20, Math.max(0.5, dist * (e.deltaY > 0 ? 1.1 : 0.9)));
+    applyCam();
+  }, { passive: false });
+
+  function frame() {
+    requestAnimationFrame(frame);
+    if (spin && modelRoot.children.length) modelRoot.rotation.y += spinSpeed;
+    renderer.render(scene, camera);
+  }
+  frame();
+
+  /* ---------------- 模型分析 ---------------- */
+  function clearModel() {
+    while (modelRoot.children.length) {
+      var c = modelRoot.children.pop();
+      c.traverse(function (o) {
+        if (o.geometry) o.geometry.dispose();
+        if (o.material) {
+          (Array.isArray(o.material) ? o.material : [o.material]).forEach(function (m) { m.dispose(); });
+        }
+      });
+    }
+    model = null;
+  }
+
+  function prepare(obj) {
+    clearModel();
+    var box = new THREE.Box3().setFromObject(obj);
+    var size = box.getSize(new THREE.Vector3());
+    var maxEdge = Math.max(size.x, size.y, size.z) || 1;
+    var s = 1.8 / maxEdge;                    // 归一化到视口舒适大小
+    obj.scale.multiplyScalar(s);
+    var c = box.getCenter(new THREE.Vector3()).multiplyScalar(s);
+    obj.position.sub(c);
+    modelRoot.add(obj);
+    model = obj;
+    analyze();
+    $("vpEmpty").style.display = "none";
+    $("btnStl").disabled = false;
+    $("btnPng").disabled = false;
+  }
+
+  function loadGLBArrayBuffer(buf, name) {
+    setStatus("解析 " + name + " …");
+    new THREE.GLTFLoader().parse(buf, "", function (gltf) {
+      prepare(gltf.scene);
+      toast("模型载入成功");
+    }, function (err) {
+      setStatus("解析失败");
+      toast("GLB 解析失败：" + (err && err.message ? err.message : "未知错误"));
+    });
+  }
+
+  function loadDemo() {
+    setStatus("生成示例模型 …");
+    var geo = new THREE.TorusKnotGeometry(0.55, 0.2, 220, 36);
+    var mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({
+      color: 0xd4a94e, metalness: 0.9, roughness: 0.32, name: "demo-alloy"
+    }));
+    mesh.name = "示例件";
+    var g = new THREE.Group(); g.add(mesh);
+    prepare(g);
+    toast("示例模型已载入（金色调）");
+  }
+
+  function setStatus(s) { $("statusline").textContent = s; }
+
+  /* 统计：三角形、部件、边界边（顶点坐标量化合并）、体积 */
+  function analyze() {
+    var tris = 0, parts = 0, vol = 0;
+    var edgeCount = {};                       // 量化边 -> 次数
+    var v = new THREE.Vector3(), a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3();
+    model.updateMatrixWorld(true);
+    model.traverse(function (o) {
+      if (!o.isMesh || !o.geometry) return;
+      parts++;
+      var g = o.geometry, idx = g.index, pos = g.attributes.position;
+      var triCount = idx ? idx.count / 3 : pos.count / 3;
+      tris += triCount;
+      function vid(i) {
+        v.fromBufferAttribute(pos, i).applyMatrix4(o.matrixWorld);
+        return Math.round(v.x * 1e4) + "," + Math.round(v.y * 1e4) + "," + Math.round(v.z * 1e4);
+      }
+      function edge(p1, p2) { return p1 < p2 ? p1 + "|" + p2 : p2 + "|" + p1; }
+      for (var t = 0; t < triCount; t++) {
+        var i0 = idx ? idx.getX(t * 3) : t * 3;
+        var i1 = idx ? idx.getX(t * 3 + 1) : t * 3 + 1;
+        var i2 = idx ? idx.getX(t * 3 + 2) : t * 3 + 2;
+        var k0 = vid(i0), k1 = vid(i1), k2 = vid(i2);
+        edgeCount[edge(k0, k1)] = (edgeCount[edge(k0, k1)] || 0) + 1;
+        edgeCount[edge(k1, k2)] = (edgeCount[edge(k1, k2)] || 0) + 1;
+        edgeCount[edge(k2, k0)] = (edgeCount[edge(k2, k0)] || 0) + 1;
+        a.fromBufferAttribute(pos, i0).applyMatrix4(o.matrixWorld);
+        b.fromBufferAttribute(pos, i1).applyMatrix4(o.matrixWorld);
+        c.fromBufferAttribute(pos, i2).applyMatrix4(o.matrixWorld);
+        vol += a.dot(b.clone().cross(c)) / 6;   // signed tetra
+      }
+    });
+    var boundary = 0;
+    Object.keys(edgeCount).forEach(function (k) { if (edgeCount[k] === 1) boundary++; });
+    modelTris = tris; modelParts = parts;
+
+    var scale = currentScale();               // mm / unit
+    var volMm3 = Math.abs(vol) * scale * scale * scale;
+    var box = new THREE.Box3().setFromObject(model);
+    var size = box.getSize(new THREE.Vector3()).multiplyScalar(scale);
+
+    $("pillState").textContent = "已载入"; $("pillState").className = "pill ok";
+    $("vTris").textContent = tris.toLocaleString();
+    $("vParts").textContent = parts;
+    $("vDims").textContent = size.x.toFixed(1) + " × " + size.y.toFixed(1) + " × " + size.z.toFixed(1);
+    $("vVol").textContent = (volMm3 / 1000).toFixed(2);
+    $("vWt").textContent = (volMm3 / 1000 * 10.36).toFixed(1) + " g";   // 925银 ~10.36 g/cm³
+    var wt = $("pillWatertight");
+    if (tris === 0) { wt.textContent = "待检"; wt.className = "pill idle"; }
+    else if (boundary === 0) { wt.textContent = "水密 ✓"; wt.className = "pill ok"; }
+    else { wt.textContent = "有 " + boundary + " 条开放边"; wt.className = boundary < tris * 0.02 ? "pill warn" : "pill bad"; }
+    $("vBoundary").textContent = boundary.toLocaleString();
+    $("vThin").textContent = tris > 0 ? (boundary === 0 ? "未发现开放边界；壁厚需工厂复核" : "存在开放边界，出蜡模前需修补") : "—";
+    setStatus("已载入 · " + tris.toLocaleString() + " 三角形 · " + parts + " 部件");
+  }
+
+  function currentScale() {
+    var box = new THREE.Box3().setFromObject(model);
+    var size = box.getSize(new THREE.Vector3());
+    var maxEdge = Math.max(size.x, size.y, size.z) || 1;
+    var target = parseFloat($("calSize").value) || 40;
+    return target / maxEdge;                  // mm per model-unit
+  }
+
+  /* ---------------- 导出 ---------------- */
+  function exportSTL() {
+    if (!model) return;
+    var scale = currentScale();
+    var clone = model.clone(true);
+    clone.scale.multiplyScalar(scale);        // 标定为 mm
+    var data = new THREE.STLExporter().parse(clone, { binary: true });
+    var blob = new Blob([data], { type: "application/octet-stream" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "sketch2jewel_cast_" + $("calSize").value + "mm.stl";
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast("STL 已导出（单位 mm），可直接发工厂打蜡模");
+  }
+
+  function exportPNG() {
+    renderer.render(scene, camera);
+    var url = renderer.domElement.toDataURL("image/png");
+    var a = document.createElement("a");
+    a.href = url; a.download = "sketch2jewel_render.png"; a.click();
+    toast("渲染图已保存");
+  }
+
+  /* ---------------- 事件绑定 ---------------- */
+  function bindDrop(dropId, fileId, handler) {
+    var d = $(dropId), f = $(fileId);
+    d.addEventListener("click", function () { f.click(); });
+    d.addEventListener("dragover", function (e) { e.preventDefault(); d.classList.add("over"); });
+    d.addEventListener("dragleave", function () { d.classList.remove("over"); });
+    d.addEventListener("drop", function (e) {
+      e.preventDefault(); d.classList.remove("over");
+      if (e.dataTransfer.files[0]) handler(e.dataTransfer.files[0]);
+    });
+    f.addEventListener("change", function () { if (f.files[0]) handler(f.files[0]); });
+  }
+
+  bindDrop("sketchDrop", "sketchFile", function (file) {
+    var url = URL.createObjectURL(file);
+    var img = $("sketchThumb");
+    img.src = url; img.style.display = "block";
+    $("sketchDrop").firstChild.textContent = "草图已就绪 ✓ ";
+    $("btnGenerate").disabled = false;
+    toast("草图已上传：" + file.name);
+    window._sketch = file;
+  });
+
+  bindDrop("glbDrop", "glbFile", function (file) {
+    var r = new FileReader();
+    r.onload = function () { loadGLBArrayBuffer(r.result, file.name); };
+    r.readAsArrayBuffer(file);
+  });
+
+  $("tabApi").addEventListener("click", function () {
+    $("tabApi").classList.add("active"); $("tabManual").classList.remove("active");
+    $("paneApi").style.display = ""; $("paneManual").style.display = "none";
+  });
+  $("tabManual").addEventListener("click", function () {
+    $("tabManual").classList.add("active"); $("tabApi").classList.remove("active");
+    $("paneManual").style.display = ""; $("paneApi").style.display = "none";
+  });
+  $("btnOpenLux").addEventListener("click", function () {
+    window.open("https://3d.aholo.cn", "_blank");
+  });
+  $("btnDemo").addEventListener("click", function (e) { e.preventDefault(); loadDemo(); });
+  $("btnGenerate").addEventListener("click", function () {
+    toast("Lux3D API 对接中：先在官网手动生成（联动模式），API 就绪后此按钮直接出模");
+  });
+  $("btnStl").addEventListener("click", exportSTL);
+  $("btnPng").addEventListener("click", exportPNG);
+  $("btnSpin").addEventListener("click", function () {
+    spin = !spin; $("btnSpin").textContent = spin ? "暂停转台" : "开启转台";
+  });
+  $("btnReset").addEventListener("click", function () { theta = 0.6; phi = 0.25; dist = 3; applyCam(); });
+  $("calSize").addEventListener("change", function () { if (model) analyze(); });
+
+  resize();
+})();
+</script>
+</body>
+</html>

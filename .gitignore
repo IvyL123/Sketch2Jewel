@@ -1,0 +1,6 @@
+Thumbs.db
+.DS_Store
+*.tmp
+convert.py
+split_sketch.ps1
+urls.txt
