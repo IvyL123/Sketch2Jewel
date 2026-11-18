@@ -1,0 +1,6 @@
+file 'seg-card-title.mp4'
+file 'turntable-gold-m1.mp4'
+file 'seg-card-compare.mp4'
+file 'turntable-gold-m2.mp4'
+file 'seg-uiv3.mp4'
+file 'seg-card-end.mp4'

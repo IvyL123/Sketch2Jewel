@@ -25,88 +25,86 @@
     font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
     min-height: 100vh;
     display: flex; flex-direction: column;
+    overflow: hidden;
   }
   header {
-    padding: 18px 28px 14px;
+    padding: 12px 24px 10px;
     border-bottom: 1px solid #2c2738;
-    display: flex; align-items: baseline; gap: 14px;
+    display: flex; align-items: baseline; gap: 14px; flex: 0 0 auto;
   }
-  header h1 { font-size: 22px; letter-spacing: 2px; color: var(--gold-bright); font-weight: 600; }
-  header .sub { color: var(--muted); font-size: 13px; }
+  header h1 { font-size: 20px; letter-spacing: 2px; color: var(--gold-bright); font-weight: 600; }
+  header .sub { color: var(--muted); font-size: 12.5px; }
   header .tag {
-    margin-left: auto; font-size: 12px; color: var(--muted);
-    border: 1px solid #35303f; border-radius: 20px; padding: 4px 12px;
+    margin-left: auto; font-size: 11.5px; color: var(--muted);
+    border: 1px solid #35303f; border-radius: 20px; padding: 3px 11px;
   }
-  main { flex: 1; display: grid; grid-template-columns: 320px 1fr 360px; gap: 0; min-height: 0; }
-  .col { padding: 18px; overflow-y: auto; border-right: 1px solid #262130; }
-  .col:last-child { border-right: none; border-left: 1px solid #262130; }
-  .step { margin-bottom: 22px; }
+  main { flex: 1; display: grid; grid-template-columns: 300px 1fr 340px; min-height: 0; }
+  .col { padding: 14px; overflow-y: auto; border-right: 1px solid #262130; }
+  .col.right { border-right: none; border-left: 1px solid #262130; padding: 0; }
+  .step { margin-bottom: 18px; }
   .step h3 {
-    font-size: 13px; color: var(--gold); letter-spacing: 1px; margin-bottom: 10px;
+    font-size: 12.5px; color: var(--gold); letter-spacing: 1px; margin-bottom: 9px;
     display: flex; align-items: center; gap: 8px;
   }
   .step h3 .num {
-    width: 20px; height: 20px; border-radius: 50%;
+    width: 19px; height: 19px; border-radius: 50%;
     background: #2e2940; color: var(--gold-bright);
-    display: inline-flex; align-items: center; justify-content: center; font-size: 12px;
+    display: inline-flex; align-items: center; justify-content: center; font-size: 11.5px;
   }
   .drop {
-    border: 1.5px dashed #4a4258; border-radius: 10px; padding: 18px 12px;
-    text-align: center; color: var(--muted); font-size: 13px; cursor: pointer;
+    border: 1.5px dashed #4a4258; border-radius: 10px; padding: 14px 12px;
+    text-align: center; color: var(--muted); font-size: 12.5px; cursor: pointer;
     transition: border-color .2s;
   }
   .drop:hover, .drop.over { border-color: var(--gold); color: var(--text); }
-  .drop img { max-width: 100%; max-height: 180px; border-radius: 6px; margin-top: 8px; display: none; }
+  .drop img { max-width: 100%; max-height: 150px; border-radius: 6px; margin-top: 8px; display: none; }
   button, .btn {
     background: linear-gradient(180deg, #2e2940, #262033);
     color: var(--text); border: 1px solid #443c55; border-radius: 8px;
-    padding: 9px 14px; font-size: 13px; cursor: pointer; width: 100%;
+    padding: 8px 13px; font-size: 12.5px; cursor: pointer; width: 100%;
     transition: all .15s; font-family: inherit;
   }
   button:hover:not(:disabled) { border-color: var(--gold); color: var(--gold-bright); }
   button:disabled { opacity: .45; cursor: not-allowed; }
   button.primary { background: linear-gradient(180deg, #8a6c2c, #6e5522); border-color: var(--gold); color: #fff; }
-  button.primary:hover { background: linear-gradient(180deg, #9c7c34, #7d6327); color: #fff; }
-  .hint { font-size: 12px; color: var(--muted); line-height: 1.7; margin-top: 8px; }
+  button.primary:hover:not(:disabled) { background: linear-gradient(180deg, #9c7c34, #7d6327); color: #fff; }
+  .hint { font-size: 11.5px; color: var(--muted); line-height: 1.65; margin-top: 7px; }
   .hint a { color: var(--gold-bright); text-decoration: none; }
-  .tabs { display: flex; gap: 6px; margin-bottom: 10px; }
-  .tabs button { padding: 7px 6px; font-size: 12px; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 9px; }
+  .tabs button { padding: 6px 5px; font-size: 11.5px; }
   .tabs button.active { border-color: var(--gold); color: var(--gold-bright); }
-  input[type=text], input[type=number] {
+  input[type=text], input[type=number], select {
     width: 100%; background: #171420; border: 1px solid #3c3550; border-radius: 8px;
-    color: var(--text); padding: 8px 10px; font-size: 13px; font-family: inherit;
+    color: var(--text); padding: 7px 10px; font-size: 12.5px; font-family: inherit;
   }
-  input:focus { outline: none; border-color: var(--gold); }
-  label.f { display: block; font-size: 12px; color: var(--muted); margin: 10px 0 4px; }
-  .viewport { position: relative; background: #0d0b13; }
+  input:focus, select:focus { outline: none; border-color: var(--gold); }
+  label.f { display: block; font-size: 11.5px; color: var(--muted); margin: 9px 0 4px; }
+  /* ---------- 视口 ---------- */
+  .viewport { position: relative; background: #0d0b13; min-width: 0; }
   .viewport canvas { display: block; }
   .viewport .empty {
     position: absolute; inset: 0; display: flex; flex-direction: column;
     align-items: center; justify-content: center; color: #56506a; gap: 12px;
+    pointer-events: none;
   }
-  .viewport .empty .big { font-size: 40px; }
-  .viewport .bar {
-    position: absolute; left: 14px; bottom: 14px; display: flex; gap: 8px;
+  .viewport .empty .big { font-size: 38px; }
+  #statusline {
+    position: absolute; top: 10px; left: 12px; font-size: 11.5px; color: var(--muted);
+    background: rgba(20,17,28,.75); padding: 3px 10px; border-radius: 14px;
   }
-  .viewport .bar button { width: auto; padding: 7px 12px; font-size: 12px; background: rgba(20,17,28,.85); }
   #sketchFloat {
-    position: absolute; top: 12px; right: 14px; width: 148px;
+    position: absolute; top: 10px; right: 12px; width: 132px;
     border: 1px solid #4a4258; border-radius: 10px; overflow: hidden;
     background: rgba(20,17,28,.88); display: none;
     box-shadow: 0 4px 18px rgba(0,0,0,.5);
   }
   #sketchFloat img { width: 100%; display: block; }
-  #sketchFloat .cap {
-    font-size: 11px; color: var(--muted); text-align: center; padding: 5px 4px;
-    border-top: 1px solid #35303f;
-  }
-  #filmstrip {
-    position: absolute; left: 14px; top: 12px; display: none; gap: 8px; z-index: 5;
-  }
+  #sketchFloat .cap { font-size: 10.5px; color: var(--muted); text-align: center; padding: 4px; border-top: 1px solid #35303f; }
+  #filmstrip { position: absolute; left: 12px; top: 40px; display: none; gap: 7px; z-index: 5; }
   #filmstrip .cell {
-    width: 64px; height: 64px; border: 2px solid #4a4258; border-radius: 8px;
+    width: 56px; height: 56px; border: 2px solid #4a4258; border-radius: 8px;
     background: #171420; cursor: pointer; overflow: hidden; position: relative;
-    display: flex; align-items: center; justify-content: center; font-size: 22px;
+    display: flex; align-items: center; justify-content: center; font-size: 20px;
   }
   #filmstrip .cell.active { border-color: var(--gold); }
   #filmstrip .cell img { width: 100%; height: 100%; object-fit: cover; }
@@ -114,42 +112,94 @@
     position: absolute; bottom: 0; left: 0; right: 0; font-size: 9px;
     background: rgba(13,11,19,.8); color: #d8d2e2; text-align: center; padding: 1px 0;
   }
-  #statusline {
-    position: absolute; top: 12px; left: 14px; font-size: 12px; color: var(--muted);
-    background: rgba(20,17,28,.75); padding: 4px 10px; border-radius: 14px;
+  /* ---------- 模式工具条 ---------- */
+  #modetoolbar {
+    position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 8px; align-items: center;
+    background: rgba(20,17,28,.9); border: 1px solid #35303f;
+    border-radius: 24px; padding: 6px 10px;
   }
+  #modetoolbar button { width: auto; padding: 7px 14px; font-size: 12px; background: transparent; border: 1px solid #443c55; }
+  #modetoolbar button.mode-active { border-color: var(--gold); color: var(--gold-bright); background: rgba(212,169,78,.12); }
+  #modetoolbar .sep { width: 1px; height: 20px; background: #35303f; }
+  #modetoolbar button.tool-sm { padding: 7px 10px; }
+  #modehint {
+    position: absolute; bottom: 64px; left: 50%; transform: translateX(-50%);
+    font-size: 12px; color: var(--gold-bright); background: rgba(20,17,28,.9);
+    border: 1px solid rgba(212,169,78,.4); border-radius: 18px; padding: 5px 16px;
+    display: none;
+  }
+  /* ---------- 右侧面板 ---------- */
+  .panelwrap { display: flex; flex-direction: column; height: 100%; }
+  .panelhead {
+    padding: 12px 16px; border-bottom: 1px solid #262130;
+    display: flex; align-items: center; gap: 10px; flex: 0 0 auto;
+  }
+  .panelhead .title { font-size: 13px; color: var(--gold); letter-spacing: 1px; }
+  .panelhead button.backbtn { width: auto; padding: 4px 10px; font-size: 11.5px; display: none; }
+  .panelbody { flex: 1; overflow-y: auto; padding: 14px 16px; }
   .card {
     background: var(--panel); border: 1px solid #2e2940; border-radius: 10px;
-    padding: 14px; margin-bottom: 14px;
+    padding: 13px; margin-bottom: 12px;
   }
-  .card h4 { font-size: 13px; color: var(--gold); margin-bottom: 10px; letter-spacing: 1px; }
-  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
-  td { padding: 5px 2px; border-bottom: 1px solid #262130; }
-  td:first-child { color: var(--muted); width: 46%; }
+  .card h4 { font-size: 12.5px; color: var(--gold); margin-bottom: 10px; letter-spacing: 1px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  td { padding: 4.5px 2px; border-bottom: 1px solid #262130; }
+  td:first-child { color: var(--muted); width: 44%; }
   td:last-child { color: var(--text); text-align: right; }
-  .pill { display: inline-block; padding: 1px 9px; border-radius: 10px; font-size: 11.5px; }
+  .pill { display: inline-block; padding: 1px 9px; border-radius: 10px; font-size: 11px; }
   .pill.ok { background: rgba(111,206,143,.15); color: var(--ok); }
   .pill.warn { background: rgba(226,162,74,.15); color: var(--warn); }
   .pill.bad { background: rgba(226,106,106,.15); color: var(--bad); }
   .pill.idle { background: #2a2536; color: var(--muted); }
   .actions { display: flex; flex-direction: column; gap: 8px; }
-  .foot { padding: 10px 28px; font-size: 11.5px; color: #6a6478; border-top: 1px solid #262130; }
-  .toast {
-    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-    background: #2e2940; border: 1px solid var(--gold); color: var(--gold-bright);
-    padding: 10px 22px; border-radius: 24px; font-size: 13px; display: none; z-index: 99;
+  /* 材质 swatch */
+  .swatches { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .swatch {
+    border: 2px solid #4a4258; border-radius: 10px; cursor: pointer;
+    text-align: center; padding-bottom: 5px; background: #171420;
+    transition: border-color .15s;
   }
+  .swatch:hover { border-color: #8a7ea0; }
+  .swatch.active { border-color: var(--gold); }
+  .swatch img { width: 100%; border-radius: 8px 8px 0 0; display: block; }
+  .swatch .nm { font-size: 11px; color: var(--text); padding-top: 4px; }
+  /* 宝石 catalog */
+  .gemlist { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  .gemitem {
+    border: 1px solid #3c3550; border-radius: 8px; padding: 7px 9px; cursor: pointer;
+    display: flex; align-items: center; gap: 8px; font-size: 12px; background: #171420;
+  }
+  .gemitem:hover { border-color: #8a7ea0; }
+  .gemitem.active { border-color: var(--gold); background: rgba(212,169,78,.08); }
+  .gemdot { width: 14px; height: 14px; border-radius: 50%; flex: 0 0 auto; border: 1px solid rgba(255,255,255,.25); }
+  .cutlist { display: flex; flex-wrap: wrap; gap: 6px; }
+  .cutitem {
+    border: 1px solid #3c3550; border-radius: 16px; padding: 5px 11px; cursor: pointer;
+    font-size: 11.5px; background: #171420; color: var(--text);
+  }
+  .cutitem:hover { border-color: #8a7ea0; }
+  .cutitem.active { border-color: var(--gold); color: var(--gold-bright); background: rgba(212,169,78,.08); }
+  .gemview { width: 100%; height: 150px; border-radius: 10px; background: #0d0b13; border: 1px solid #2e2940; }
+  .foot { padding: 8px 20px; font-size: 11px; color: #6a6478; border-top: 1px solid #262130; flex: 0 0 auto; }
+  .toast {
+    position: fixed; bottom: 76px; left: 50%; transform: translateX(-50%);
+    background: #2e2940; border: 1px solid var(--gold); color: var(--gold-bright);
+    padding: 9px 20px; border-radius: 22px; font-size: 12.5px; display: none; z-index: 99;
+  }
+  input[type=range] { width: 100%; accent-color: var(--gold); }
+  #apiLog { white-space: pre-line; font-family: Consolas, monospace; min-height: 40px; }
 </style>
 </head>
 <body>
 <header>
   <h1>一笔成珠 Sketch2Jewel</h1>
-  <span class="sub">让只会画平面草图的设计师，拿到能发给工厂打样的 3D 模型</span>
-  <span class="tag">Aholo 黑客松参赛原型 · 3D 生成由 Aholo Lux3D 驱动</span>
+  <span class="sub">手绘草图 → 3D 珠宝 → 工厂打样 · 材质与宝石可交互配置</span>
+  <span class="tag">Aholo 黑客松参赛原型 · 生成由 Aholo Lux3D 驱动</span>
 </header>
 
 <main>
-  <!-- 左栏：流程 -->
+  <!-- 左栏：输入与生成 -->
   <div class="col">
     <div class="step">
       <h3><span class="num">1</span>上传设计草图</h3>
@@ -158,7 +208,7 @@
         <img id="sketchThumb" alt="草图预览">
       </div>
       <input type="file" id="sketchFile" accept="image/*" style="display:none">
-      <div class="hint">支持手绘线稿、平板绘画。颜色即语义：<b style="color:var(--gold-bright)">黄=金色件</b>、灰=银色件、<b style="color:#b39ddb">紫=宝石</b>。</div>
+      <div class="hint">颜色即语义：<b style="color:var(--gold-bright)">黄=金</b> · 灰=银 · <b style="color:#b39ddb">紫=宝石</b></div>
     </div>
 
     <div class="step">
@@ -168,42 +218,41 @@
         <button id="tabManual">联动 · 官网生成</button>
       </div>
       <div id="paneApi">
-        <label class="f">Lux3D API Key <a href="https://lux3d.aholo3d.cn/lux3d/home?entry_type=website&auth_action=get_api&from=lux3d&lang=zh_CN" target="_blank" style="color:var(--gold-bright)">去控制台获取 ↗</a></label>
-        <input type="text" id="apiKey" placeholder="粘贴 API Key（仅保存在本页）">
+        <label class="f">Lux3D API Key <a href="https://lux3d.aholo3d.cn/lux3d/home?entry_type=website&auth_action=get_api&from=lux3d&lang=zh_CN" target="_blank" style="color:var(--gold-bright)">获取 ↗</a></label>
+        <input type="text" id="apiKey" placeholder="粘贴 API Key（仅存本页）">
         <div style="display:flex; gap:8px; margin-top:8px">
           <div style="flex:1">
-            <label class="f">服务区域</label>
-            <select id="apiRegion" style="width:100%;background:#171420;border:1px solid #3c3550;border-radius:8px;color:var(--text);padding:8px;font-size:13px">
-              <option value="cn" selected>国内 api.aholo3d.cn</option>
-              <option value="global">国际 api.aholo.ai</option>
+            <label class="f">区域</label>
+            <select id="apiRegion">
+              <option value="cn" selected>国内</option>
+              <option value="global">国际</option>
             </select>
           </div>
           <div style="flex:1">
             <label class="f">引擎</label>
-            <select id="apiEngine" style="width:100%;background:#171420;border:1px solid #3c3550;border-radius:8px;color:var(--text);padding:8px;font-size:13px">
-              <option value="G1-Turbo" selected>极速 G1-Turbo（约1分钟）</option>
-              <option value="G1">精细 G1（约5分钟）</option>
+            <select id="apiEngine">
+              <option value="G1-Turbo" selected>极速 约1min</option>
+              <option value="G1">精细 约5min</option>
             </select>
           </div>
         </div>
         <label class="f">面数上限</label>
-        <select id="apiFace" style="width:100%;background:#171420;border:1px solid #3c3550;border-radius:8px;color:var(--text);padding:8px;font-size:13px">
-          <option value="120000">轻量 12万面（网页/游戏）</option>
-          <option value="200000" selected>标准 20万面（通用）</option>
-          <option value="300000">精细 30万面（展示/打印）</option>
+        <select id="apiFace">
+          <option value="120000">轻量 12万面</option>
+          <option value="200000" selected>标准 20万面</option>
+          <option value="300000">精细 30万面</option>
         </select>
-        <div style="margin-top:10px"><button class="primary" id="btnGenerate" disabled>调用 Lux3D 生成</button></div>
-        <div id="apiLog" class="hint" style="margin-top:8px; min-height:66px; white-space:pre-line; font-family:Consolas,monospace"></div>
-        <div class="hint">报名黑客松获取积分后即可调用 img-to-3d 接口。生成约 1–5 分钟，期间可继续画图。</div>
+        <div style="margin-top:9px"><button class="primary" id="btnGenerate" disabled>调用 Lux3D 生成</button></div>
+        <div id="apiLog" class="hint"></div>
       </div>
       <div id="paneManual" style="display:none">
-        <div class="hint">① 点击下方按钮在官网用草图生成模型 → ② 官网下载 GLB 文件 → ③ 把 GLB 拖入下方框。平台负责预览、质检与交付。</div>
-        <div style="margin:10px 0"><button id="btnOpenLux">打开 Aholo Lux3D ↗</button></div>
+        <div class="hint">① 在官网用草图生成 → ② 下载 GLB → ③ 拖入下方框，平台负责预览、配置与交付。</div>
+        <div style="margin:8px 0"><button id="btnOpenLux">打开 Aholo Lux3D ↗</button></div>
         <div class="drop" id="glbDrop">拖入 Lux3D 下载的 .glb 文件<br><small>或点击选择</small></div>
         <input type="file" id="glbFile" accept=".glb,.gltf" style="display:none">
       </div>
-      <div class="hint" style="margin-top:14px">
-        还没有任何模型？<a href="#" id="btnDemo">载入示例模型</a> 先体验质检与导出流程。
+      <div class="hint" style="margin-top:10px">
+        没有 GLB？<a href="#" id="btnDemo">载入示例戒指</a> 先体验材质配置与导出。
       </div>
     </div>
   </div>
@@ -212,57 +261,35 @@
   <div class="viewport" id="viewport">
     <div class="empty" id="vpEmpty">
       <div class="big">💍</div>
-      <div>还没有模型 —— 上传草图生成，或载入示例</div>
+      <div>上传草图生成模型，或载入示例戒指</div>
     </div>
     <div id="filmstrip"></div>
-    <div id="sketchFloat"><img id="sketchFloatImg" alt="原草图"><div class="cap">原草图 ↔ 生成模型</div></div>
+    <div id="sketchFloat"><img id="sketchFloatImg" alt="原草图"><div class="cap">原草图 → 生成模型</div></div>
     <div id="statusline">未加载模型</div>
-    <div class="bar">
-      <button id="btnSpin">暂停转台</button>
-      <button id="btnReset">复位视角</button>
+    <div id="modehint"></div>
+    <div id="modetoolbar">
+      <button id="modeNone" class="mode-active">👁 浏览</button>
+      <button id="modeMetal">🏭 材质</button>
+      <button id="modeGem">💎 镶宝石</button>
+      <button id="modeRing">📏 测指围</button>
+      <div class="sep"></div>
+      <button id="btnSpin" class="tool-sm">⏸</button>
+      <button id="btnReset" class="tool-sm">⌂</button>
     </div>
   </div>
 
-  <!-- 右栏：交付单 -->
-  <div class="col">
-    <div class="card">
-      <h4>工厂交付单 · Factory Sheet</h4>
-      <table id="sheetBase">
-        <tr><td>模型状态</td><td><span class="pill idle" id="pillState">待载入</span></td></tr>
-        <tr><td>网格三角形</td><td id="vTris">—</td></tr>
-        <tr><td>网格部件数</td><td id="vParts">—</td></tr>
-      </table>
-    </div>
-    <div class="card">
-      <h4>尺寸标定</h4>
-      <label class="f">目标整体最长边（mm）</label>
-      <input type="number" id="calSize" value="40" min="5" max="200">
-      <div class="hint">AI 生成模型无绝对尺度，按目标佩戴尺寸等比标定。</div>
-      <table id="sheetSize" style="margin-top:8px">
-        <tr><td>长 × 宽 × 高 (mm)</td><td id="vDims">—</td></tr>
-        <tr><td>实体体积 (cm³)</td><td id="vVol">—</td></tr>
-        <tr><td>估重 · 925 银 (g)</td><td id="vWt">—</td></tr>
-      </table>
-    </div>
-    <div class="card">
-      <h4>可制造性初检</h4>
-      <table>
-        <tr><td>水密性（可否出蜡模）</td><td><span class="pill idle" id="pillWatertight">待检</span></td></tr>
-        <tr><td>开放边界边</td><td id="vBoundary">—</td></tr>
-        <tr><td>最薄风险提示</td><td id="vThin">—</td></tr>
-      </table>
-      <div class="hint">初检为几何粗查，替代不了工厂工程评审。</div>
-    </div>
-    <div class="card">
-      <h4>导出</h4>
-      <div class="actions">
-        <button class="primary" id="btnStl" disabled>下载打样 STL（按标定尺寸）</button>
-        <button id="btnPng" disabled>保存渲染图（报告用）</button>
+  <!-- 右栏：上下文面板 -->
+  <div class="col right">
+    <div class="panelwrap">
+      <div class="panelhead">
+        <button class="backbtn" id="btnBack">← 返回</button>
+        <div class="title" id="panelTitle">工厂交付单</div>
       </div>
+      <div class="panelbody" id="panelBody"></div>
     </div>
   </div>
 </main>
-<div class="foot">一笔成珠 Sketch2Jewel — 2026 群核 Aholo 全球 3D AI 黑客松参赛原型 · 生成能力来自 Aholo Lux3D（img-to-3d）· 本页完全离线可用</div>
+<div class="foot">一笔成珠 Sketch2Jewel — 2026 群核 Aholo 全球 3D AI 黑客松参赛原型 · 生成能力来自 Aholo Lux3D（img-to-3d）· 点击模型部件可配置材质 / 镶嵌宝石 / 查看参数 · 本页完全离线可用</div>
 <div class="toast" id="toast"></div>
 
 <script src="lib/three.min.js"></script>
@@ -277,24 +304,101 @@
     clearTimeout(t._h); t._h = setTimeout(function () { t.style.display = "none"; }, ms || 2600);
   }
 
-  /* ---------------- 场景 ---------------- */
+  /* ================= 数据目录（来源：GIA 切工式样 / 公开宝石物性表 / 港美码戒指对照） ================= */
+  var METALS = [
+    { id: "gold18k",    nm: "18K 黄金",  color: 0xe9b95c, rough: 0.16, desc: "镜面抛光 · 75% Au" },
+    { id: "rose18k",    nm: "18K 玫瑰金", color: 0xe6a084, rough: 0.18, desc: "铜金合金" },
+    { id: "silver925",  nm: "925 银",    color: 0xf3f3f5, rough: 0.11, desc: "镜面抛光" },
+    { id: "platinum",   nm: "铂金 PT950", color: 0xd9dade, rough: 0.19, desc: "冷白 · 高密度" },
+    { id: "blackrh",    nm: "镀黑铑",    color: 0x3b3b42, rough: 0.20, desc: "哑光黑 · 时尚款" },
+    { id: "antique",    nm: "做旧银",    color: 0x8b8478, rough: 0.52, desc: "氧化包浆 · 复古", tex: "patina" }
+  ];
+  var GEMS = [
+    { id: "diamond", nm: "钻石",   color: 0xf4f6ff, ri: 2.417, sg: 3.52, mohs: 10, trans: 0.96, att: 0xf8f9ff },
+    { id: "ruby",    nm: "红宝石", color: 0x9c0f36, ri: 1.77,  sg: 4.00, mohs: 9,  trans: 0.86, att: 0x6e0824 },
+    { id: "sapphire",nm: "蓝宝石", color: 0x1140a8, ri: 1.77,  sg: 4.00, mohs: 9,  trans: 0.88, att: 0x0c2f85 },
+    { id: "emerald", nm: "祖母绿", color: 0x0f8f4d, ri: 1.58,  sg: 2.76, mohs: 7.5,trans: 0.82, att: 0x0a6b39 },
+    { id: "spinel",  nm: "尖晶石", color: 0xe23a6e, ri: 1.72,  sg: 3.60, mohs: 8,  trans: 0.90, att: 0xb02a54 },
+    { id: "aquamarine", nm: "海蓝宝", color: 0x7fd4e8, ri: 1.58, sg: 2.72, mohs: 7.5, trans: 0.92, att: 0x5cb8cf },
+    { id: "tanzanite",  nm: "坦桑石", color: 0x5f58c8, ri: 1.69, sg: 3.35, mohs: 6.5, trans: 0.88, att: 0x443ea0 },
+    { id: "amethyst",   nm: "紫水晶", color: 0x8e5bd0, ri: 1.54, sg: 2.65, mohs: 7,  trans: 0.92, att: 0x6a3fa8 },
+    { id: "opal",    nm: "欧泊",   color: 0xdfe8f2, ri: 1.45,  sg: 2.15, mohs: 6,  trans: 0.55, att: 0xc8d8ee, opal: true },
+    { id: "pearl",   nm: "珍珠",   color: 0xf6eef0, ri: 1.53,  sg: 2.70, mohs: 3,  trans: 0.0,  pearl: true }
+  ];
+  var CUTS = [
+    { id: "round",    nm: "圆形明亮式", facets: "57-58 刻面", kind: "brilliant", outline: "round",  ratio: 1.0 },
+    { id: "oval",     nm: "椭圆形",     facets: "明亮式变型", kind: "brilliant", outline: "oval",   ratio: 0.72 },
+    { id: "pear",     nm: "梨形",       facets: "58 刻面",    kind: "brilliant", outline: "pear",   ratio: 0.72 },
+    { id: "marquise", nm: "马眼形",     facets: "57 刻面",    kind: "brilliant", outline: "marquise",ratio: 0.55 },
+    { id: "princess", nm: "公主方",     facets: "方形明亮式", kind: "step",      outline: "square", ratio: 1.0 },
+    { id: "emerald",  nm: "祖母绿切",   facets: "阶梯式",     kind: "step",      outline: "octagon",ratio: 0.72 },
+    { id: "asscher",  nm: "阿舍尔",     facets: "方形阶梯式", kind: "step",      outline: "octagon",ratio: 1.0 },
+    { id: "cushion",  nm: "枕形",       facets: "明亮式变型", kind: "brilliant", outline: "cushion",ratio: 0.9 }
+  ];
+  /* 港码↔美码 对照（内直径 mm）—— 周生生/周大福等港系通用表 */
+  var RINGTABLE = [
+    { hk: 7,  us: 4,    dia: 14.5 }, { hk: 8,  us: 4.5,  dia: 14.9 },
+    { hk: 9,  us: 5,    dia: 15.3 }, { hk: 10, us: 5.5,  dia: 15.7 },
+    { hk: 11, us: 5.75, dia: 16.0 }, { hk: 12, us: 6,    dia: 16.5 },
+    { hk: 13, us: 6.5,  dia: 16.9 }, { hk: 14, us: 7,    dia: 17.3 },
+    { hk: 15, us: 7.25, dia: 17.7 }, { hk: 16, us: 7.5,  dia: 18.2 },
+    { hk: 17, us: 8,    dia: 18.6 }, { hk: 18, us: 8.5,  dia: 19.0 },
+    { hk: 19, us: 9,    dia: 19.4 }, { hk: 20, us: 9.5,  dia: 19.8 },
+    { hk: 21, us: 10,   dia: 20.2 }, { hk: 22, us: 10.5, dia: 20.6 },
+    { hk: 23, us: 11,   dia: 21.0 }, { hk: 24, us: 11.5, dia: 21.4 },
+    { hk: 25, us: 12,   dia: 21.8 }
+  ];
+
+  /* ================= 场景 ================= */
   var vp = $("viewport");
   var renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setClearColor(0x0d0b13);
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.physicallyCorrectLights = false;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.05;
   vp.appendChild(renderer.domElement);
 
   var scene = new THREE.Scene();
-  var camera = new THREE.PerspectiveCamera(42, 1, 0.1, 5000);
-  var modelRoot = new THREE.Group();      // 转台旋转组
-  var model = null;                        // 当前模型 Object3D
-  var modelTris = 0, modelParts = 0;
-  var spin = true, spinSpeed = 0.006;
-  scene.add(modelRoot);
-  scene.add(new THREE.HemisphereLight(0x8888aa, 0x2a2438, 0.9));
-  var key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(2, 3, 4); scene.add(key);
-  var fill = new THREE.DirectionalLight(0xd4a94e, 0.35); fill.position.set(-3, 1, 2); scene.add(fill);
-  var rim = new THREE.DirectionalLight(0x8899ff, 0.5); rim.position.set(0, 2, -4); scene.add(rim);
+  var camera = new THREE.PerspectiveCamera(40, 1, 0.1, 5000);
+  var modelRoot = new THREE.Group();
+  var gemRoot = new THREE.Group();          // 镶嵌宝石层
+  var markerRoot = new THREE.Group();       // 测量标记层
+  scene.add(modelRoot); scene.add(gemRoot); scene.add(markerRoot);
+
+  /* --- 程序化棚拍环境贴图（金属质感的灵魂） --- */
+  function makeStudioEnv() {
+    var w = 1024, h = 512;
+    var c = document.createElement("canvas"); c.width = w; c.height = h;
+    var x = c.getContext("2d");
+    var g = x.createLinearGradient(0, 0, 0, h);
+    g.addColorStop(0, "#3a3546"); g.addColorStop(0.48, "#181521");
+    g.addColorStop(0.5, "#0a090f"); g.addColorStop(1, "#050408");
+    x.fillStyle = g; x.fillRect(0, 0, w, h);
+    function strip(cx, cy, sw, sh, a) {
+      var lg = x.createRadialGradient(cx, cy, 0, cx, cy, Math.max(sw, sh));
+      lg.addColorStop(0, "rgba(255,250,240," + a + ")");
+      lg.addColorStop(0.35, "rgba(255,244,214," + (a * 0.5) + ")");
+      lg.addColorStop(1, "rgba(255,244,214,0)");
+      x.fillStyle = lg; x.fillRect(cx - sw, cy - sh, sw * 2, sh * 2);
+    }
+    strip(w * 0.28, h * 0.24, 190, 120, 0.95);   // 主光（左上柔光箱）
+    strip(w * 0.72, h * 0.30, 130, 210, 0.62);   // 右侧竖条光（金属长反光）
+    strip(w * 0.50, h * 0.13, 300, 55, 0.50);    // 顶部横条光
+    strip(w * 0.18, h * 0.42, 60, 160, 0.35);    // 左侧辅光
+    var tex = new THREE.CanvasTexture(c);
+    tex.mapping = THREE.EquirectangularReflectionMapping;
+    var pmrem = new THREE.PMREMGenerator(renderer);
+    var envRT = pmrem.fromEquirectangular(tex);
+    tex.dispose(); pmrem.dispose();
+    return envRT.texture;
+  }
+  scene.environment = makeStudioEnv();
+
+  var keyL = new THREE.DirectionalLight(0xfff4e0, 0.55); keyL.position.set(3, 5, 4); scene.add(keyL);
+  var fillL = new THREE.DirectionalLight(0xd4e2ff, 0.25); fillL.position.set(-4, 2, 3); scene.add(fillL);
+  var rimL = new THREE.DirectionalLight(0xffffff, 0.4); rimL.position.set(0, 3, -5); scene.add(rimL);
 
   function resize() {
     var w = vp.clientWidth, h = vp.clientHeight;
@@ -302,11 +406,9 @@
     camera.aspect = w / h; camera.updateProjectionMatrix();
   }
   window.addEventListener("resize", resize);
+  camera.position.set(0, 0.8, 3.2);
 
-  camera.position.set(0, 0.6, 3);
-
-  /* 简易轨道：拖拽旋转 + 滚轮缩放 */
-  var drag = null, theta = 0.6, phi = 0.25, dist = 3;
+  var drag = null, theta = 0.7, phi = 0.22, dist = 3.2;
   function applyCam() {
     camera.position.set(
       dist * Math.sin(theta) * Math.cos(phi),
@@ -326,29 +428,181 @@
   window.addEventListener("mouseup", function () { drag = null; });
   vp.addEventListener("wheel", function (e) {
     e.preventDefault();
-    dist = Math.min(20, Math.max(0.5, dist * (e.deltaY > 0 ? 1.1 : 0.9)));
+    dist = Math.min(20, Math.max(0.4, dist * (e.deltaY > 0 ? 1.1 : 0.9)));
     applyCam();
   }, { passive: false });
 
+  var spin = true;
   function frame() {
     requestAnimationFrame(frame);
-    if (spin && modelRoot.children.length) modelRoot.rotation.y += spinSpeed;
+    if (spin && modelRoot.children.length) modelRoot.rotation.y += 0.005;
     renderer.render(scene, camera);
   }
   frame();
 
-  /* ---------------- 模型分析 ---------------- */
+  /* ================= 材质工厂 ================= */
+  function noiseCanvas(w, h, painter) {
+    var c = document.createElement("canvas"); c.width = w; c.height = h;
+    painter(c.getContext("2d"), w, h);
+    var t = new THREE.CanvasTexture(c);
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    return t;
+  }
+  var patinaTex = noiseCanvas(512, 512, function (x, w, h) {
+    x.fillStyle = "#c9c9c9"; x.fillRect(0, 0, w, h);
+    for (var i = 0; i < 2600; i++) {
+      var r = Math.random() * 3.2 + 0.6;
+      x.fillStyle = "rgba(" + (60 + Math.random() * 70 | 0) + "," + (55 + Math.random() * 60 | 0) + "," + (50 + Math.random() * 55 | 0) + "," + (0.10 + Math.random() * 0.3) + ")";
+      x.beginPath(); x.arc(Math.random() * w, Math.random() * h, r, 0, 7); x.fill();
+    }
+  });
+  var brushedTex = noiseCanvas(512, 512, function (x, w, h) {
+    x.fillStyle = "#b9b9b9"; x.fillRect(0, 0, w, h);
+    for (var i = 0; i < 240; i++) {
+      x.strokeStyle = "rgba(" + (150 + Math.random() * 105 | 0) + "," + (150 + Math.random() * 105 | 0) + "," + (150 + Math.random() * 105 | 0) + ",0.5)";
+      x.lineWidth = Math.random() * 1.6 + 0.3;
+      var y = Math.random() * h;
+      x.beginPath(); x.moveTo(0, y); x.lineTo(w, y + (Math.random() - 0.5) * 6); x.stroke();
+    }
+  });
+  function makeMetal(mat) {
+    var m = new THREE.MeshPhysicalMaterial({
+      color: mat.color, metalness: 1.0, roughness: mat.rough,
+      clearcoat: mat.rough < 0.2 ? 0.55 : 0.0, clearcoatRoughness: 0.18,
+      envMapIntensity: 1.25
+    });
+    if (mat.tex === "patina") { m.roughnessMap = patinaTex; m.roughness = 0.62; }
+    if (mat.tex === "brushed") { m.roughnessMap = brushedTex; m.roughness = 0.42; }
+    return m;
+  }
+  function makeGem(gem, cut) {
+    if (gem.pearl) {
+      return new THREE.MeshPhysicalMaterial({
+        color: gem.color, metalness: 0, roughness: 0.32, clearcoat: 1,
+        clearcoatRoughness: 0.25, sheen: 1, sheenColor: 0xffe8ee, sheenRoughness: 0.4,
+        envMapIntensity: 1.1, flatShading: false
+      });
+    }
+    var m = new THREE.MeshPhysicalMaterial({
+      color: gem.color, metalness: 0, roughness: gem.id === "diamond" ? 0.008 : 0.03,
+      transmission: gem.trans, thickness: 2.4, ior: gem.ri,
+      attenuationColor: gem.att, attenuationDistance: gem.id === "diamond" ? 8 : 1.1,
+      clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 1.7,
+      specularIntensity: 1, flatShading: true, side: THREE.DoubleSide
+    });
+    if (gem.opal) { m.transmission = 0.55; m.roughness = 0.12; m.iridescence && (m.iridescence = 0.9); }
+    return m;
+  }
+
+  /* ================= 参数化宝石几何 ================= */
+  function outlinePoints(kind, n) {
+    var pts = [];
+    function add(a, r, sy) { pts.push([Math.cos(a) * r, Math.sin(a) * (sy || r)]); }
+    if (kind === "round") { for (var i = 0; i < 16; i++) add(i / 16 * Math.PI * 2 - Math.PI / 2, 0.5); }
+    else if (kind === "cushion") { for (var j = 0; j < 16; j++) { var a = j / 16 * Math.PI * 2 - Math.PI / 2; var r = 0.5 * (1 + 0.09 * Math.cos(4 * a) / Math.cos(0)); add(a, r); } }
+    else if (kind === "oval") { for (var k = 0; k < 16; k++) add(k / 16 * Math.PI * 2 - Math.PI / 2, 0.5, 0.36); }
+    else if (kind === "square") { pts.push([-.42, -.42], [.42, -.42], [.42, .42], [-.42, .42]); }
+    else if (kind === "octagon") {
+      var o = 0.40, c = 0.16;
+      pts.push([-o + c, -o], [o - c, -o], [o, -o + c], [o, o - c], [o - c, o], [-o + c, o], [-o, o - c], [-o, -o + c]);
+    } else if (kind === "pear" || kind === "marquise") {
+      for (var p = 0; p < 20; p++) {
+        var ang = p / 20 * Math.PI * 2;         // 0 = 下尖端
+        var s = Math.sin(ang);
+        var taper = kind === "pear" ? (0.5 * Math.pow(Math.max(0, Math.sin((ang + Math.PI / 2) / 2)), 0.7) + 0.06)
+                                     : (0.5 * Math.pow(Math.abs(s), 0.75) + 0.04);
+        pts.push([taper * Math.cos(ang) * 0.72, taper * Math.sin(ang)]);
+      }
+    }
+    return pts;
+  }
+  /* 轮廓缩放堆叠（阶梯切/明亮式通用的 frustum stack），flat 法线 */
+  function gemGeometry(cut, diaMm) {
+    var def = CUTS.find(function (c) { return c.id === cut; });
+    var pts = outlinePoints(def.outline);
+    var H = diaMm * (def.kind === "step" ? 0.72 : 0.62);   // 全高
+    var layers = [];
+    if (def.kind === "brilliant") {
+      var table = diaMm * 0.55;
+      layers = [
+        { y: H * 0.62, s: table / diaMm },        // 台面
+        { y: H * 0.44, s: 1.0 },                  // 冠部腰缘
+        { y: H * 0.36, s: 1.0 },                  // 腰棱
+        { y: H * 0.16, s: 0.62 },                 // 亭部上
+        { y: 0.0,     s: 0.10 }                   // 底尖
+      ];
+    } else {
+      layers = [
+        { y: H * 0.70, s: 0.58 }, { y: H * 0.56, s: 0.72 },
+        { y: H * 0.44, s: 0.86 }, { y: H * 0.36, s: 1.0 },
+        { y: H * 0.22, s: 1.0 },  { y: H * 0.10, s: 0.72 }, { y: 0, s: 0.42 }
+      ];
+    }
+    var positions = [], indices = [];
+    function pushRing(y, scale) {
+      var base = positions.length / 3;
+      for (var i = 0; i < pts.length; i++) {
+        positions.push(pts[i][0] * diaMm * scale, y, pts[i][1] * diaMm * scale);
+      }
+      return base;
+    }
+    var rings = layers.map(function (L) { return pushRing(L.y, L.s); });
+    for (var r = 0; r < rings.length - 1; r++) {
+      var A = rings[r], B = rings[r + 1], n = pts.length;
+      for (var i2 = 0; i2 < n; i2++) {
+        var a1 = A + i2, a2 = A + (i2 + 1) % n, b1 = B + i2, b2 = B + (i2 + 1) % n;
+        positions.length && indices.push(a1, b1, b2, a1, b2, a2);
+      }
+    }
+    /* 封台面与底尖 */
+    var topIdx = positions.length / 3;
+    positions.push(0, layers[0].y, 0);
+    var n2 = pts.length;
+    for (var i3 = 0; i3 < n2; i3++) indices.push(topIdx, rings[0] + (i3 + 1) % n2, rings[0] + i3);
+    if (layers[layers.length - 1].s <= 0.12) {
+      var botIdx = positions.length / 3;
+      positions.push(0, 0, 0);
+      var bot = rings[rings.length - 1];
+      for (var i4 = 0; i4 < n2; i4++) indices.push(botIdx, bot + i4, bot + (i4 + 1) % n2);
+    } else {
+      var t2 = positions.length / 3; positions.push(0, layers[layers.length - 1].y, 0);
+      var b2r = rings[rings.length - 1];
+      for (var i5 = 0; i5 < n2; i5++) indices.push(t2, b2r + i5, b2r + (i5 + 1) % n2);
+    }
+    var geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+    geo.setIndex(indices);
+    geo.computeVertexNormals();
+    return { geo: geo, height: H };
+  }
+
+  /* ================= 模型管理 ================= */
+  var model = null, modelTris = 0, modelParts = 0, modelMaterials = [];
+  var selected = null;             // {type:'mesh', obj} | {type:'gem', obj}
+  var placedGems = [];             // {mesh, cutId, gemId, dia}
+  var markers = [];                // 测量点
+  var measureP1 = null;
+  var mode = "none";
+
+  function setStatus(s) { $("statusline").textContent = s; }
+  function scaleMM() {
+    var box = new THREE.Box3().setFromObject(model);
+    var size = box.getSize(new THREE.Vector3());
+    var maxEdge = Math.max(size.x, size.y, size.z) || 1;
+    return (parseFloat($("calSize") ? $("calSize").value : 40) || 40) / maxEdge;
+  }
+
   function clearModel() {
     while (modelRoot.children.length) {
       var c = modelRoot.children.pop();
       c.traverse(function (o) {
         if (o.geometry) o.geometry.dispose();
-        if (o.material) {
-          (Array.isArray(o.material) ? o.material : [o.material]).forEach(function (m) { m.dispose(); });
-        }
+        if (o.material) (Array.isArray(o.material) ? o.material : [o.material]).forEach(function (m) { m.dispose(); });
       });
     }
-    model = null;
+    while (gemRoot.children.length) gemRoot.remove(gemRoot.children[0]);
+    while (markerRoot.children.length) markerRoot.remove(markerRoot.children[0]);
+    model = null; placedGems = []; markers = []; measureP1 = null; selected = null;
   }
 
   function prepare(obj) {
@@ -356,25 +610,35 @@
     var box = new THREE.Box3().setFromObject(obj);
     var size = box.getSize(new THREE.Vector3());
     var maxEdge = Math.max(size.x, size.y, size.z) || 1;
-    var s = 1.8 / maxEdge;                    // 归一化到视口舒适大小
+    var s = 1.8 / maxEdge;
     obj.scale.multiplyScalar(s);
     var c = box.getCenter(new THREE.Vector3()).multiplyScalar(s);
     obj.position.sub(c);
     modelRoot.add(obj);
     model = obj;
-    analyze();
+    modelMaterials = [];
+    modelTris = 0; modelParts = 0;
+    model.updateMatrixWorld(true);
+    model.traverse(function (o) {
+      if (!o.isMesh) return;
+      modelParts++;
+      var g = o.geometry, idx = g.index, pos = g.attributes.position;
+      modelTris += idx ? idx.count / 3 : pos.count / 3;
+      (Array.isArray(o.material) ? o.material : [o.material]).forEach(function (m) {
+        if (modelMaterials.indexOf(m) < 0) modelMaterials.push(m);
+      });
+      o.userData.isModel = true;
+    });
     $("vpEmpty").style.display = "none";
-    $("btnStl").disabled = false;
-    $("btnPng").disabled = false;
+    $("btnGenerate").disabled = false;
+    showDeliverySheet();
   }
 
   function loadGLBArrayBuffer(buf, name, skipGallery) {
     setStatus("解析 " + name + " …");
     new THREE.GLTFLoader().parse(buf, "", function (gltf) {
       prepare(gltf.scene);
-      if (!skipGallery) {
-        setTimeout(function () { galleryAdd(name, buf); }, 250);
-      }
+      if (!skipGallery) setTimeout(function () { galleryAdd(name, buf); }, 250);
       toast("模型载入成功");
     }, function (err) {
       setStatus("解析失败");
@@ -382,13 +646,34 @@
     });
   }
 
-  /* ---------------- 作品集胶片栏 ---------------- */
-  var gallery = [];       // {name, buf, thumb, btn}
+  /* 示例：参数化素圈戒指（银色），可测指围/换材质/镶主石 */
+  function loadDemo() {
+    setStatus("生成示例戒指 …");
+    var g = new THREE.Group();
+    var band = new THREE.Mesh(
+      new THREE.TorusGeometry(0.55, 0.075, 40, 120),
+      makeMetal(METALS[2]));
+    band.name = "戒圈 band";
+    band.userData.partName = "戒臂（素圈）";
+    g.add(band);
+    var head = new THREE.Mesh(
+      new THREE.TorusGeometry(0.16, 0.038, 24, 60),
+      makeMetal(METALS[2]));
+    head.name = "镶口 head";
+    head.position.y = 0.55;
+    head.rotation.x = Math.PI / 2;
+    head.userData.partName = "镶口（主石座）";
+    g.add(head);
+    prepare(g);
+    setTimeout(function () { galleryAdd("示例素圈戒", null); }, 250);
+    toast("示例戒指已载入：点「材质」换金属，点「镶宝石」加主石");
+  }
+
+  /* ================= 胶片栏 ================= */
+  var gallery = [];
   function galleryThumb() {
-    try {
-      renderer.render(scene, camera);
-      return renderer.domElement.toDataURL("image/jpeg", 0.6);
-    } catch (e) { return null; }
+    try { renderer.render(scene, camera); return renderer.domElement.toDataURL("image/jpeg", 0.6); }
+    catch (e) { return null; }
   }
   function galleryAdd(name, buf) {
     var thumb = galleryThumb();
@@ -403,14 +688,9 @@
     gallery.forEach(function (g) {
       var cell = document.createElement("div");
       cell.className = "cell" + (g.name === activeName ? " active" : "");
-      cell.title = g.name;
-      if (g.thumb) {
-        var im = document.createElement("img"); im.src = g.thumb; cell.appendChild(im);
-      } else {
-        cell.textContent = "💎";
-      }
-      var lbl = document.createElement("div");
-      lbl.className = "lbl";
+      if (g.thumb) { var im = document.createElement("img"); im.src = g.thumb; cell.appendChild(im); }
+      else cell.textContent = "💎";
+      var lbl = document.createElement("div"); lbl.className = "lbl";
       lbl.textContent = g.name.length > 8 ? g.name.slice(0, 7) + "…" : g.name;
       cell.appendChild(lbl);
       cell.addEventListener("click", function () {
@@ -422,42 +702,23 @@
     });
   }
 
-  function loadDemo() {
-    setStatus("生成示例模型 …");
-    var geo = new THREE.TorusKnotGeometry(0.55, 0.2, 220, 36);
-    var mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({
-      color: 0xd4a94e, metalness: 0.9, roughness: 0.32, name: "demo-alloy"
-    }));
-    mesh.name = "示例件";
-    var g = new THREE.Group(); g.add(mesh);
-    prepare(g);
-    setTimeout(function () { galleryAdd("示例件", null); }, 250);
-    toast("示例模型已载入（金色调）");
-  }
-
-  function setStatus(s) { $("statusline").textContent = s; }
-
-  /* 统计：三角形、部件、边界边（顶点坐标量化合并）、体积 */
+  /* ================= 交付单 ================= */
   function analyze() {
-    var tris = 0, parts = 0, vol = 0;
-    var edgeCount = {};                       // 量化边 -> 次数
+    var vol = 0;
+    var edgeCount = {};
     var v = new THREE.Vector3(), a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3();
     model.updateMatrixWorld(true);
     model.traverse(function (o) {
       if (!o.isMesh || !o.geometry) return;
-      parts++;
       var g = o.geometry, idx = g.index, pos = g.attributes.position;
       var triCount = idx ? idx.count / 3 : pos.count / 3;
-      tris += triCount;
       function vid(i) {
         v.fromBufferAttribute(pos, i).applyMatrix4(o.matrixWorld);
         return Math.round(v.x * 1e4) + "," + Math.round(v.y * 1e4) + "," + Math.round(v.z * 1e4);
       }
       function edge(p1, p2) { return p1 < p2 ? p1 + "|" + p2 : p2 + "|" + p1; }
       for (var t = 0; t < triCount; t++) {
-        var i0 = idx ? idx.getX(t * 3) : t * 3;
-        var i1 = idx ? idx.getX(t * 3 + 1) : t * 3 + 1;
-        var i2 = idx ? idx.getX(t * 3 + 2) : t * 3 + 2;
+        var i0 = idx ? idx.getX(t * 3) : t * 3, i1 = idx ? idx.getX(t * 3 + 1) : t * 3 + 1, i2 = idx ? idx.getX(t * 3 + 2) : t * 3 + 2;
         var k0 = vid(i0), k1 = vid(i1), k2 = vid(i2);
         edgeCount[edge(k0, k1)] = (edgeCount[edge(k0, k1)] || 0) + 1;
         edgeCount[edge(k1, k2)] = (edgeCount[edge(k1, k2)] || 0) + 1;
@@ -465,66 +726,479 @@
         a.fromBufferAttribute(pos, i0).applyMatrix4(o.matrixWorld);
         b.fromBufferAttribute(pos, i1).applyMatrix4(o.matrixWorld);
         c.fromBufferAttribute(pos, i2).applyMatrix4(o.matrixWorld);
-        vol += a.dot(b.clone().cross(c)) / 6;   // signed tetra
+        vol += a.dot(b.clone().cross(c)) / 6;
       }
     });
     var boundary = 0;
     Object.keys(edgeCount).forEach(function (k) { if (edgeCount[k] === 1) boundary++; });
-    modelTris = tris; modelParts = parts;
-
-    var scale = currentScale();               // mm / unit
-    var volMm3 = Math.abs(vol) * scale * scale * scale;
+    var sc = scaleMM();
+    var volMm3 = Math.abs(vol) * sc * sc * sc;
     var box = new THREE.Box3().setFromObject(model);
-    var size = box.getSize(new THREE.Vector3()).multiplyScalar(scale);
-
-    $("pillState").textContent = "已载入"; $("pillState").className = "pill ok";
-    $("vTris").textContent = tris.toLocaleString();
-    $("vParts").textContent = parts;
-    $("vDims").textContent = size.x.toFixed(1) + " × " + size.y.toFixed(1) + " × " + size.z.toFixed(1);
-    $("vVol").textContent = (volMm3 / 1000).toFixed(2);
-    $("vWt").textContent = (volMm3 / 1000 * 10.36).toFixed(1) + " g";   // 925银 ~10.36 g/cm³
-    var wt = $("pillWatertight");
-    if (tris === 0) { wt.textContent = "待检"; wt.className = "pill idle"; }
-    else if (boundary === 0) { wt.textContent = "水密 ✓"; wt.className = "pill ok"; }
-    else { wt.textContent = "有 " + boundary + " 条开放边"; wt.className = boundary < tris * 0.02 ? "pill warn" : "pill bad"; }
-    $("vBoundary").textContent = boundary.toLocaleString();
-    $("vThin").textContent = tris > 0 ? (boundary === 0 ? "未发现开放边界；壁厚需工厂复核" : "存在开放边界，出蜡模前需修补") : "—";
-    setStatus("已载入 · " + tris.toLocaleString() + " 三角形 · " + parts + " 部件");
+    var size = box.getSize(new THREE.Vector3()).multiplyScalar(sc);
+    var wtEl = boundary === 0 ? '<span class="pill ok">通过</span>' :
+      (boundary < modelTris * 0.02 ? '<span class="pill warn">少量开放边</span>' : '<span class="pill bad">需修补</span>');
+    return {
+      tris: modelTris, parts: modelParts, boundary: boundary,
+      dims: size.x.toFixed(1) + " × " + size.y.toFixed(1) + " × " + size.z.toFixed(1),
+      vol: (volMm3 / 1000).toFixed(2),
+      silver: (volMm3 / 1000 * 10.36).toFixed(1),
+      gold18k: (volMm3 / 1000 * 15.6).toFixed(1),
+      watertight: wtEl, watertightRaw: boundary === 0
+    };
+  }
+  function showDeliverySheet() {
+    if (!model) return;
+    var a = analyze();
+    $("panelTitle").textContent = "工厂交付单";
+    $("btnBack").style.display = "none";
+    var gemRows = placedGems.length ? placedGems.map(function (g, i) {
+      var gem = GEMS.find(function (x) { return x.id === g.gemId; });
+      var cut = CUTS.find(function (x) { return x.id === g.cutId; });
+      return "<tr><td>主石 " + (i + 1) + "</td><td>" + gem.nm + " · " + cut.nm + " · " + g.dia.toFixed(1) + "mm · 约" + gemCarat(g).toFixed(2) + "ct</td></tr>";
+    }).join("") : "<tr><td>镶嵌主石</td><td>未镶嵌</td></tr>";
+    $("panelBody").innerHTML =
+      '<div class="card"><h4>金属件</h4><table>' +
+      '<tr><td>模型状态</td><td><span class="pill ok">已载入</span></td></tr>' +
+      '<tr><td>网格三角形</td><td>' + a.tris.toLocaleString() + '</td></tr>' +
+      '<tr><td>网格部件数</td><td>' + a.parts + '</td></tr>' +
+      '<tr><td>长 × 宽 × 高 (mm)</td><td>' + a.dims + '</td></tr>' +
+      '<tr><td>实体体积 (cm³)</td><td>' + a.vol + '</td></tr>' +
+      '<tr><td>估重 · 925 银 (g)</td><td>' + a.silver + '</td></tr>' +
+      '<tr><td>估重 · 18K 金 (g)</td><td>' + a.gold18k + '</td></tr>' +
+      '<tr><td>水密性（可否出蜡模）</td><td>' + a.watertight + '</td></tr>' +
+      '<tr><td>开放边界边</td><td>' + a.boundary.toLocaleString() + '</td></tr>' +
+      '</table><div class="hint">初检为几何粗查，替代不了工厂工程评审。</div></div>' +
+      '<div class="card"><h4>镶嵌清单</h4><table>' + gemRows + '</table>' +
+      '<div class="hint">在「💎 镶宝石」模式点击模型表面即可镶嵌，点击宝石可改切工/宝石/尺寸。</div></div>' +
+      '<div class="card"><h4>导出</h4><div class="actions">' +
+      '<button class="primary" id="btnStl">下载打样 STL（仅金属件 · mm）</button>' +
+      '<button id="btnPng">保存渲染图（报告用）</button></div></div>';
+    $("btnStl").addEventListener("click", exportSTL);
+    $("btnPng").addEventListener("click", exportPNG);
+  }
+  function gemCarat(g) {
+    var vol = meshVolumeMm3(g.mesh);
+    var gem = GEMS.find(function (x) { return x.id === g.gemId; });
+    return vol * gem.sg / 200;                       // mm³·g/cm³ → g → ×5 ct
+  }
+  function meshVolumeMm3(mesh) {
+    var g = mesh.geometry, idx = g.index, pos = g.attributes.position;
+    var vol = 0, a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3();
+    var triCount = idx ? idx.count / 3 : pos.count / 3;
+    for (var t = 0; t < triCount; t++) {
+      var i0 = idx ? idx.getX(t * 3) : t * 3, i1 = idx ? idx.getX(t * 3 + 1) : t * 3 + 1, i2 = idx ? idx.getX(t * 3 + 2) : t * 3 + 2;
+      a.fromBufferAttribute(pos, i0); b.fromBufferAttribute(pos, i1); c.fromBufferAttribute(pos, i2);
+      vol += a.dot(b.clone().cross(c)) / 6;
+    }
+    var s = scaleMM() * mesh.scale.x;
+    return Math.abs(vol) * s * s * s;
   }
 
-  function currentScale() {
-    var box = new THREE.Box3().setFromObject(model);
-    var size = box.getSize(new THREE.Vector3());
-    var maxEdge = Math.max(size.x, size.y, size.z) || 1;
-    var target = parseFloat($("calSize").value) || 40;
-    return target / maxEdge;                  // mm per model-unit
-  }
-
-  /* ---------------- 导出 ---------------- */
+  /* ================= 导出 ================= */
   function exportSTL() {
     if (!model) return;
-    var scale = currentScale();
+    var sc = scaleMM();
     var clone = model.clone(true);
-    clone.scale.multiplyScalar(scale);        // 标定为 mm
+    clone.scale.multiplyScalar(sc);
     var data = new THREE.STLExporter().parse(clone, { binary: true });
     var blob = new Blob([data], { type: "application/octet-stream" });
     var a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = "sketch2jewel_cast_" + $("calSize").value + "mm.stl";
-    a.click();
-    URL.revokeObjectURL(a.href);
-    toast("STL 已导出（单位 mm），可直接发工厂打蜡模");
+    a.download = "sketch2jewel_cast_" + "40mm.stl";
+    a.click(); URL.revokeObjectURL(a.href);
+    toast("STL 已导出（单位 mm，不含镶嵌宝石）——可直接发工厂打蜡模");
   }
-
   function exportPNG() {
     renderer.render(scene, camera);
-    var url = renderer.domElement.toDataURL("image/png");
     var a = document.createElement("a");
-    a.href = url; a.download = "sketch2jewel_render.png"; a.click();
+    a.href = renderer.domElement.toDataURL("image/png");
+    a.download = "sketch2jewel_render.png"; a.click();
     toast("渲染图已保存");
   }
 
-  /* ---------------- 事件绑定 ---------------- */
+  /* ================= 模式系统 ================= */
+  var raycaster = new THREE.Raycaster();
+  function setMode(m) {
+    mode = m;
+    ["modeNone", "modeMetal", "modeGem", "modeRing"].forEach(function (id) {
+      $(id).classList.remove("mode-active");
+    });
+    if (m === "none") $("modeNone").classList.add("mode-active");
+    if (m === "metal") $("modeMetal").classList.add("mode-active");
+    if (m === "gem") $("modeGem").classList.add("mode-active");
+    if (m === "ring") $("modeRing").classList.add("mode-active");
+    var hint = $("modehint");
+    if (m === "metal") { hint.textContent = "点击模型部件 → 更换金属材质"; hint.style.display = "block"; }
+    else if (m === "gem") { hint.textContent = "先在右侧选切工与宝石，再点击模型表面镶嵌"; hint.style.display = "block"; }
+    else if (m === "ring") { hint.textContent = measureP1 ? "点击戒圈内壁第二点" : "点击戒圈内壁第一点"; hint.style.display = "block"; }
+    else hint.style.display = "none";
+    if (m !== "ring") { measureP1 = null; while (markerRoot.children.length) markerRoot.remove(markerRoot.children[0]); markers = []; }
+    deselect();
+  }
+  $("modeNone").addEventListener("click", function () { setMode("none"); });
+  $("modeMetal").addEventListener("click", function () { setMode("metal"); });
+  $("modeGem").addEventListener("click", function () { setMode("gem"); });
+  $("modeRing").addEventListener("click", function () { setMode("ring"); });
+
+  function pick(e) {
+    var rect = renderer.domElement.getBoundingClientRect();
+    var mx = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    var my = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+    raycaster.setFromCamera({ x: mx, y: my }, camera);
+    var targets = model ? [model, gemRoot] : [gemRoot];
+    var hits = raycaster.intersectObjects(targets, true);
+    return hits.length ? hits[0] : null;
+  }
+  function select(obj, info) {
+    selected = { type: info.type, obj: obj, data: info };
+    if (info.type === "mesh") showMetalPanel(obj, info.partName);
+    else if (info.type === "gem") showGemPanel(obj);
+    else if (info.type === "measure") showRingPanel(info.dia);
+  }
+  function deselect() {
+    selected = null;
+    if (mode === "metal" || mode === "gem" || mode === "ring") {
+      $("panelTitle").textContent = mode === "metal" ? "材质" : (mode === "gem" ? "镶嵌宝石" : "测指围");
+      $("btnBack").style.display = "inline-block";
+      if (mode === "metal") showMetalCatalog(null);
+      else if (mode === "gem") showGemCatalog(null);
+      else showRingIntro();
+    } else {
+      showDeliverySheet();
+    }
+  }
+  $("btnBack").addEventListener("click", function () { setMode("none"); });
+
+  vp.addEventListener("mousedown", function (e) { vp._downAt = { x: e.clientX, y: e.clientY }; });
+  vp.addEventListener("click", function (e) {
+    if (!vp._downAt) return;
+    var dx = e.clientX - vp._downAt.x, dy = e.clientY - vp._downAt.y;
+    if (dx * dx + dy * dy > 25) return;                       // 拖拽不算点击
+    if (mode === "none") return;
+    var hit = pick(e);
+    if (mode === "metal") {
+      if (!hit || !hit.object.userData.isModel) { toast("未点到模型金属件"); return; }
+      select(hit.object, { type: "mesh", partName: hit.object.userData.partName || hit.object.name || ("部件 " + hit.object.uuid.slice(0, 5)) });
+    } else if (mode === "gem") {
+      if (hit && hit.object.userData.isGem) { select(hit.object, { type: "gem" }); return; }
+      if (!hit || (!hit.object.userData.isModel && !hit.object.userData.isGem)) { toast("请点击模型表面放置宝石"); return; }
+      if (!gemSel.gemId || !gemSel.cutId) { toast("先在右侧选择宝石与切工"); return; }
+      placeGem(hit);
+    } else if (mode === "ring") {
+      if (!hit) { toast("请点击戒圈内壁"); return; }
+      addMeasurePoint(hit.point);
+    }
+  });
+
+  /* ---------- 材质面板 ---------- */
+  var swatchCache = {};
+  function metalSwatch(mat) {
+    if (swatchCache[mat.id]) return swatchCache[mat.id];
+    var s = new THREE.Mesh(new THREE.SphereGeometry(1, 48, 32), makeMetal(mat));
+    var sc = new THREE.Scene(); sc.environment = scene.environment; sc.add(s);
+    var l1 = new THREE.DirectionalLight(0xfff4e0, 0.6); l1.position.set(3, 5, 4); sc.add(l1);
+    var l2 = new THREE.DirectionalLight(0xffffff, 0.35); l2.position.set(-3, 2, -4); sc.add(l2);
+    var cam2 = new THREE.PerspectiveCamera(35, 1, 0.1, 10); cam2.position.set(0, 0.4, 3); cam2.lookAt(0, 0, 0);
+    renderer.setSize(120, 120, false);
+    renderer.render(sc, cam2);
+    var url = renderer.domElement.toDataURL("image/png");
+    s.geometry.dispose(); s.material.dispose();
+    resize();
+    swatchCache[mat.id] = url;
+    return url;
+  }
+  function showMetalCatalog(targetName) {
+    $("panelTitle").textContent = "金属材质";
+    $("btnBack").style.display = "inline-block";
+    var sw = METALS.map(function (m) {
+      return '<div class="swatch" data-mid="' + m.id + '"><img src="' + metalSwatch(m) + '"><div class="nm">' + m.nm + '</div></div>';
+    }).join("");
+    $("panelBody").innerHTML =
+      '<div class="card"><h4>选择金属</h4><div class="swatches">' + sw + '</div>' +
+      '<div class="hint" style="margin-top:10px">' + (targetName ? "将应用到：<b>" + targetName + "</b>" : "点击模型部件可单独应用（当前网格为整体时应用到整件）") + '</div></div>' +
+      '<div class="card"><h4>说明</h4><table>' +
+      '<tr><td>材质模型</td><td>PBR 金属工作流</td></tr>' +
+      '<tr><td>环境光</td><td>程序化棚拍 HDRI</td></tr>' +
+      '<tr><td>表面处理</td><td>镜面 / 氧化包浆 / 拉丝可选</td></tr></table></div>';
+    Array.prototype.forEach.call(document.querySelectorAll(".swatch"), function (el) {
+      el.addEventListener("click", function () {
+        var m = METALS.find(function (x) { return x.id === el.getAttribute("data-mid"); });
+        applyMetal(m, selected && selected.type === "mesh" ? selected.obj : null);
+        Array.prototype.forEach.call(document.querySelectorAll(".swatch"), function (s2) { s2.classList.remove("active"); });
+        el.classList.add("active");
+      });
+    });
+  }
+  function applyMetal(m, meshObj) {
+    var nm = makeMetal(m);
+    if (meshObj && meshObj.isMesh) {
+      meshObj.material.dispose();
+      meshObj.material = nm;
+      meshObj.userData.metalId = m.id;
+      toast("已应用：" + m.nm + " → " + (meshObj.userData.partName || "部件"));
+    } else if (model) {
+      model.traverse(function (o) {
+        if (o.isMesh) { (Array.isArray(o.material) ? o.material : [o.material]).forEach(function (mm) { mm.dispose(); }); o.material = nm.clone(); o.userData.metalId = m.id; }
+      });
+      toast("已应用：" + m.nm + " → 整件");
+    }
+    if (selected && selected.type === "mesh") showMetalPanel(selected.obj, selected.data.partName);
+    else showMetalCatalog(null);
+  }
+  function showMetalPanel(obj, partName) {
+    $("panelTitle").textContent = "部件 · " + partName;
+    $("btnBack").style.display = "inline-block";
+    var curIdId = obj.userData.metalId;
+    var curId = METALS.find(function (m) { return m.id === curIdId; });
+    var sw = METALS.map(function (m) {
+      return '<div class="swatch' + (curId && curId.id === m.id ? " active" : "") + '" data-mid="' + m.id + '"><img src="' + metalSwatch(m) + '"><div class="nm">' + m.nm + '</div></div>';
+    }).join("");
+    $("panelBody").innerHTML =
+      '<div class="card"><h4>材质配置 · ' + partName + '</h4><div class="swatches">' + sw + '</div></div>' +
+      '<div class="card"><h4>部件参数</h4><table>' +
+      '<tr><td>网格</td><td>' + (obj.geometry.index ? obj.geometry.index.count / 3 : obj.geometry.attributes.position.count / 3).toLocaleString() + ' 三角形</td></tr>' +
+      '<tr><td>金属度</td><td>1.0（金属工作流）</td></tr>' +
+      '<tr><td>粗糙度</td><td>' + (obj.material.roughness || 0).toFixed(2) + '</td></tr>' +
+      '</table></div>' +
+      '<div class="actions"><button id="btnWholeMetal">应用到整件</button></div>';
+    Array.prototype.forEach.call(document.querySelectorAll(".swatch"), function (el) {
+      el.addEventListener("click", function () {
+        var m = METALS.find(function (x) { return x.id === el.getAttribute("data-mid"); });
+        applyMetal(m, obj);
+      });
+    });
+    $("btnWholeMetal").addEventListener("click", function () {
+      var id = document.querySelector(".swatch.active");
+      var m = METALS.find(function (x) { return id && x.id === id.getAttribute("data-mid"); }) || METALS[0];
+      applyMetal(m, null);
+    });
+  }
+
+  /* ---------- 宝石面板 ---------- */
+  var gemSel = { cutId: "round", gemId: "diamond", dia: 6.5 };
+  function gemThumb(gemId, cutId, dia) {
+    var gem = GEMS.find(function (g) { return g.id === gemId; });
+    var gg = gemGeometry(cutId, dia);
+    var mesh = new THREE.Mesh(gg.geo, makeGem(gem, cutId));
+    var sc = new THREE.Scene(); sc.environment = scene.environment;
+    var l1 = new THREE.DirectionalLight(0xfff4e0, 0.7); l1.position.set(3, 5, 4); sc.add(l1);
+    var l2 = new THREE.DirectionalLight(0xffffff, 0.4); l2.position.set(-3, 2, -4); sc.add(l2);
+    sc.add(mesh);
+    mesh.rotation.y = 0.5;
+    var cam2 = new THREE.PerspectiveCamera(35, 1, 0.1, 200);
+    cam2.position.set(0, dia * 0.9, dia * 2.6); cam2.lookAt(0, 0, 0);
+    renderer.setSize(300, 150, false);
+    renderer.render(sc, cam2);
+    var url = renderer.domElement.toDataURL("image/png");
+    mesh.geometry.dispose(); mesh.material.dispose();
+    resize();
+    return url;
+  }
+  function showGemCatalog(preview) {
+    $("panelTitle").textContent = "镶嵌宝石";
+    $("btnBack").style.display = "inline-block";
+    var gemList = GEMS.map(function (g) {
+      return '<div class="gemitem' + (gemSel.gemId === g.id ? " active" : "") + '" data-gid="' + g.id + '">' +
+        '<span class="gemdot" style="background:#' + g.color.toString(16).padStart(6, "0") + '"></span>' + g.nm + '</div>';
+    }).join("");
+    var cutList = CUTS.map(function (c) {
+      return '<span class="cutitem' + (gemSel.cutId === c.id ? " active" : "") + '" data-cid="' + c.id + '">' + c.nm + '</span>';
+    }).join("");
+    $("panelBody").innerHTML =
+      '<div class="card"><h4>预览</h4><img class="gemview" id="gemPreview" src="' + (preview || gemThumb(gemSel.gemId, gemSel.cutId, gemSel.dia)) + '">' +
+      '<label class="f">主石直径 <span id="diaVal">' + gemSel.dia.toFixed(1) + '</span> mm</label>' +
+      '<input type="range" id="gemDia" min="3" max="14" step="0.5" value="' + gemSel.dia + '">' +
+      '</div>' +
+      '<div class="card"><h4>切工</h4><div class="cutlist">' + cutList + '</div>' +
+      '<div class="hint" id="cutHint">' + cutInfo() + '</div></div>' +
+      '<div class="card"><h4>宝石种类</h4><div class="gemlist">' + gemList + '</div></div>' +
+      '<div class="card"><h4>下一步</h4><div class="hint">选好后<b>点击模型表面</b>完成镶嵌。点击已镶的宝石可再编辑。</div></div>';
+    $("gemDia").addEventListener("input", function () {
+      gemSel.dia = parseFloat(this.value);
+      $("diaVal").textContent = gemSel.dia.toFixed(1);
+      $("gemPreview").src = gemThumb(gemSel.gemId, gemSel.cutId, gemSel.dia);
+    });
+    Array.prototype.forEach.call(document.querySelectorAll(".cutitem"), function (el) {
+      el.addEventListener("click", function () {
+        gemSel.cutId = el.getAttribute("data-cid");
+        Array.prototype.forEach.call(document.querySelectorAll(".cutitem"), function (x) { x.classList.remove("active"); });
+        el.classList.add("active");
+        $("cutHint").textContent = cutInfo();
+        $("gemPreview").src = gemThumb(gemSel.gemId, gemSel.cutId, gemSel.dia);
+      });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll(".gemitem"), function (el) {
+      el.addEventListener("click", function () {
+        gemSel.gemId = el.getAttribute("data-gid");
+        Array.prototype.forEach.call(document.querySelectorAll(".gemitem"), function (x) { x.classList.remove("active"); });
+        el.classList.add("active");
+        $("gemPreview").src = gemThumb(gemSel.gemId, gemSel.cutId, gemSel.dia);
+      });
+    });
+  }
+  function cutInfo() {
+    var cut = CUTS.find(function (c) { return c.id === gemSel.cutId; });
+    var gem = GEMS.find(function (g) { return g.id === gemSel.gemId; });
+    return "<b>" + cut.nm + "</b>（" + cut.facets + "）· " + gem.nm +
+      " · 折射率 " + gem.ri + " · 密度 " + gem.sg + " g/cm³ · 摩氏硬度 " + gem.mohs;
+  }
+  function placeGem(hit) {
+    var gg = gemGeometry(gemSel.cutId, gemSel.dia);
+    var gem = GEMS.find(function (g) { return g.id === gemSel.gemId; });
+    var mesh = new THREE.Mesh(gg.geo, makeGem(gem, gemSel.cutId));
+    var sc = scaleMM();
+    mesh.scale.setScalar(1 / sc);                    // mm → 模型单位
+    var n = hit.face.normal.clone().transformDirection(hit.object.matrixWorld);
+    var pos = hit.point.clone().add(n.clone().multiplyScalar(gg.height * 0.3 / sc));
+    mesh.position.copy(pos);
+    var up = new THREE.Vector3(0, 1, 0);
+    var q = new THREE.Quaternion().setFromUnitVectors(up, n);
+    mesh.quaternion.copy(q);
+    mesh.userData = { isGem: true, cutId: gemSel.cutId, gemId: gemSel.gemId, dia: gemSel.dia };
+    gemRoot.add(mesh);
+    placedGems.push({ mesh: mesh, cutId: gemSel.cutId, gemId: gemSel.gemId, dia: gemSel.dia });
+    toast("已镶嵌 " + gem.nm + "（" + CUTS.find(function (c) { return c.id === gemSel.cutId; }).nm + " " + gemSel.dia + "mm）");
+    showGemCatalog(null);
+  }
+  function updateGem(mesh) {
+    var rec = placedGems.find(function (g) { return g.mesh === mesh; });
+    var pos = mesh.position.clone(), q = mesh.quaternion.clone();
+    var gg = gemGeometry(rec.cutId, rec.dia);
+    var gem = GEMS.find(function (g) { return g.id === rec.gemId; });
+    mesh.geometry.dispose(); mesh.material.dispose();
+    mesh.geometry = gg.geo;
+    mesh.material = makeGem(gem, rec.cutId);
+    mesh.userData.cutId = rec.cutId; mesh.userData.gemId = rec.gemId; mesh.userData.dia = rec.dia;
+    mesh.position.copy(pos); mesh.quaternion.copy(q);
+  }
+  function showGemPanel(mesh) {
+    var rec = placedGems.find(function (g) { return g.mesh === mesh; });
+    if (!rec) return;
+    var gem = GEMS.find(function (g) { return g.id === rec.gemId; });
+    var cut = CUTS.find(function (c) { return c.id === rec.cutId; });
+    $("panelTitle").textContent = "主石 · " + gem.nm;
+    $("btnBack").style.display = "inline-block";
+    var gg = gemGeometry(rec.cutId, rec.dia);
+    var box = new THREE.Box3().setFromObject(mesh);
+    var size = box.getSize(new THREE.Vector3()).multiplyScalar(scaleMM());
+    var ct = gemCarat(rec);
+    var cutList = CUTS.map(function (c) {
+      return '<span class="cutitem' + (rec.cutId === c.id ? " active" : "") + '" data-cid="' + c.id + '">' + c.nm + '</span>';
+    }).join("");
+    var gemList = GEMS.map(function (g) {
+      return '<div class="gemitem' + (rec.gemId === g.id ? " active" : "") + '" data-gid="' + g.id + '">' +
+        '<span class="gemdot" style="background:#' + g.color.toString(16).padStart(6, "0") + '"></span>' + g.nm + '</div>';
+    }).join("");
+    $("panelBody").innerHTML =
+      '<div class="card"><h4>主石参数（点击部位显示）</h4><table>' +
+      '<tr><td>切割方式</td><td>' + cut.nm + '（' + cut.facets + '）</td></tr>' +
+      '<tr><td>宝石种类</td><td>' + gem.nm + '</td></tr>' +
+      '<tr><td>长 × 宽 (mm)</td><td>' + size.x.toFixed(2) + ' × ' + size.z.toFixed(2) + '</td></tr>' +
+      '<tr><td>全高 (mm)</td><td>' + size.y.toFixed(2) + '</td></tr>' +
+      '<tr><td>标称直径</td><td>' + rec.dia.toFixed(1) + ' mm</td></tr>' +
+      '<tr><td>估算克拉</td><td>约 ' + ct.toFixed(2) + ' ct</td></tr>' +
+      '<tr><td>折射率 / 硬度</td><td>' + gem.ri + ' / 摩氏 ' + gem.mohs + '</td></tr>' +
+      '</table><div class="hint">克拉按实际网格体积 × 密度换算（1 ct = 0.2 g）。</div></div>' +
+      '<div class="card"><h4>切工</h4><div class="cutlist">' + cutList + '</div></div>' +
+      '<div class="card"><h4>换宝石</h4><div class="gemlist">' + gemList + '</div></div>' +
+      '<div class="card"><h4>尺寸</h4><label class="f">主石直径 <span id="diaVal2">' + rec.dia.toFixed(1) + '</span> mm</label>' +
+      '<input type="range" id="gemDia2" min="3" max="14" step="0.5" value="' + rec.dia + '"></div>' +
+      '<div class="actions"><button id="btnDelGem">取下这颗宝石</button></div>';
+    Array.prototype.forEach.call(document.querySelectorAll(".cutitem"), function (el) {
+      el.addEventListener("click", function () {
+        rec.cutId = el.getAttribute("data-cid");
+        updateGem(mesh); showGemPanel(mesh);
+      });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll(".gemitem"), function (el) {
+      el.addEventListener("click", function () {
+        rec.gemId = el.getAttribute("data-gid");
+        updateGem(mesh); showGemPanel(mesh);
+      });
+    });
+    $("gemDia2").addEventListener("input", function () {
+      rec.dia = parseFloat(this.value);
+      $("diaVal2").textContent = rec.dia.toFixed(1);
+      updateGem(mesh);
+    });
+    $("btnDelGem").addEventListener("click", function () {
+      gemRoot.remove(mesh);
+      mesh.geometry.dispose(); mesh.material.dispose();
+      placedGems = placedGems.filter(function (g) { return g.mesh !== mesh; });
+      toast("宝石已取下");
+      deselect();
+    });
+  }
+
+  /* ---------- 测指围 ---------- */
+  function addMeasurePoint(point) {
+    var m = new THREE.Mesh(new THREE.SphereGeometry(0.035, 16, 12),
+      new THREE.MeshBasicMaterial({ color: 0xecc778 }));
+    m.position.copy(point);
+    markerRoot.add(m);
+    markers.push({ mesh: m, point: point.clone() });
+    if (!measureP1) {
+      measureP1 = point.clone();
+      var hint = $("modehint");
+      hint.textContent = "已记录第 1 点 · 点击戒圈对侧内壁第 2 点";
+      toast("第 1 点已记录");
+    } else {
+      var p2 = point.clone();
+      var sc = scaleMM();
+      var diaMm = measureP1.distanceTo(p2) * sc;
+      while (markerRoot.children.length) markerRoot.remove(markerRoot.children[0]);
+      markers = [];
+      var rec = nearestRing(diaMm);
+      measureP1 = null;
+      setMode("none");
+      select(null, { type: "measure", dia: diaMm, rec: rec });
+    }
+  }
+  function nearestRing(dia) {
+    var best = RINGTABLE[0], d = 1e9;
+    RINGTABLE.forEach(function (r) {
+      var dd = Math.abs(r.dia - dia);
+      if (dd < d) { d = dd; best = r; }
+    });
+    return best;
+  }
+  function showRingIntro() {
+    $("panelTitle").textContent = "测指围";
+    $("btnBack").style.display = "inline-block";
+    $("panelBody").innerHTML =
+      '<div class="card"><h4>内卡钳测量</h4><div class="hint" style="font-size:12px">' +
+      '依次点击<b>戒圈内壁的两个相对点</b>（比如左右各一点），平台自动换算内直径并匹配港码/美码。<br><br>' +
+      '也可以直接拖动滑块按直径查号：</div>' +
+      '<input type="range" id="ringDia" min="14" max="22" step="0.1" value="17.3" style="margin-top:8px">' +
+      '<div id="ringQuick" style="margin-top:8px"></div></div>';
+    var upd = function () {
+      var dia = parseFloat($("ringDia").value);
+      var rec = nearestRing(dia);
+      $("ringQuick").innerHTML = ringResultHTML(dia, rec);
+    };
+    $("ringDia").addEventListener("input", upd); upd();
+  }
+  function ringResultHTML(dia, rec) {
+    return '<table>' +
+      '<tr><td>内直径</td><td>' + dia.toFixed(1) + ' mm</td></tr>' +
+      '<tr><td>港码（圈号）</td><td><b style="color:var(--gold-bright)">' + rec.hk + ' 号</b></td></tr>' +
+      '<tr><td>美码 (US)</td><td>' + rec.us + '</td></tr>' +
+      '<tr><td>内周长</td><td>' + (dia * Math.PI).toFixed(1) + ' mm</td></tr>' +
+      '</table><div class="hint">介于两号之间建议取大一号；对照表来源：周生生/周大福等港系品牌通用标准。</div>';
+  }
+  function showRingPanel(diaMm) {
+    var rec = nearestRing(diaMm);
+    $("panelTitle").textContent = "指围测量结果";
+    $("btnBack").style.display = "inline-block";
+    $("panelBody").innerHTML =
+      '<div class="card"><h4>你选中的两点</h4>' + ringResultHTML(diaMm, rec) + '</div>' +
+      '<div class="actions"><button id="btnRemeasure">重新测量</button></div>';
+    $("btnRemeasure").addEventListener("click", function () {
+      setMode("ring");
+    });
+  }
+
+  /* ================= 事件绑定 ================= */
   function bindDrop(dropId, fileId, handler) {
     var d = $(dropId), f = $(fileId);
     d.addEventListener("click", function () { f.click(); });
@@ -536,7 +1210,6 @@
     });
     f.addEventListener("change", function () { if (f.files[0]) handler(f.files[0]); });
   }
-
   bindDrop("sketchDrop", "sketchFile", function (file) {
     var url = URL.createObjectURL(file);
     var img = $("sketchThumb");
@@ -544,17 +1217,15 @@
     $("sketchDrop").firstChild.textContent = "草图已就绪 ✓ ";
     $("btnGenerate").disabled = false;
     $("sketchFloatImg").src = url;
-    $("sketchFloat").style.display = "block";   // 视口内草图↔模型同框
+    $("sketchFloat").style.display = "block";
     toast("草图已上传：" + file.name);
     window._sketch = file;
   });
-
   bindDrop("glbDrop", "glbFile", function (file) {
     var r = new FileReader();
     r.onload = function () { loadGLBArrayBuffer(r.result, file.name); };
     r.readAsArrayBuffer(file);
   });
-
   $("tabApi").addEventListener("click", function () {
     $("tabApi").classList.add("active"); $("tabManual").classList.remove("active");
     $("paneApi").style.display = ""; $("paneManual").style.display = "none";
@@ -563,128 +1234,87 @@
     $("tabManual").classList.add("active"); $("tabApi").classList.remove("active");
     $("paneManual").style.display = ""; $("paneApi").style.display = "none";
   });
-  $("btnOpenLux").addEventListener("click", function () {
-    window.open("https://3d.aholo.cn", "_blank");
-  });
+  $("btnOpenLux").addEventListener("click", function () { window.open("https://3d.aholo.cn", "_blank"); });
   $("btnDemo").addEventListener("click", function (e) { e.preventDefault(); loadDemo(); });
+  $("btnSpin").addEventListener("click", function () {
+    spin = !spin; $("btnSpin").textContent = spin ? "⏸" : "▶";
+  });
+  $("btnReset").addEventListener("click", function () { theta = 0.7; phi = 0.22; dist = 3.2; applyCam(); });
 
-  /* ---------------- Lux3D API 完整管线 ----------------
-     规格：上传凭证 asset/v1/token → OUS 单文件直传 → img-to-3d 建任务 → task/get 轮询
-     所有请求经本地代理 /proxy?url= 绕开 CORS（serve.py） */
-  var md5cycle = function (x, k) {
-    var a = x[0], b = x[1], c = x[2], d = x[3];
-    a = ff(a, b, c, d, k[0], 7, -680876936); d = ff(d, a, b, c, k[1], 12, -389564586);
-    c = ff(c, d, a, b, k[2], 17, 606105819); b = ff(b, c, d, a, k[3], 22, -1044525330);
-    a = ff(a, b, c, d, k[4], 7, -176418897); d = ff(d, a, b, c, k[5], 12, 1200080426);
-    c = ff(c, d, a, b, k[6], 17, -1473231341); b = ff(b, c, d, a, k[7], 22, -45705983);
-    a = ff(a, b, c, d, k[8], 7, 1770035416); d = ff(d, a, b, c, k[9], 12, -1958414417);
-    c = ff(c, d, a, b, k[10], 17, -42063); b = ff(b, c, d, a, k[11], 22, -1990404162);
-    a = ff(a, b, c, d, k[12], 7, 1804603682); d = ff(d, a, b, c, k[13], 12, -40341101);
-    c = ff(c, d, a, b, k[14], 17, -1502002290); b = ff(b, c, d, a, k[15], 22, 1236535329);
-    a = gg(a, b, c, d, k[1], 5, -165796510); d = gg(d, a, b, c, k[6], 9, -1069501632);
-    c = gg(c, d, a, b, k[11], 14, 643717713); b = gg(b, c, d, a, k[0], 20, -373897302);
-    a = gg(a, b, c, d, k[5], 5, -701558691); d = gg(d, a, b, c, k[10], 9, 38016083);
-    c = gg(c, d, a, b, k[15], 14, -660478335); b = gg(b, c, d, a, k[4], 20, -405537848);
-    a = gg(a, b, c, d, k[9], 5, 568446438); d = gg(d, a, b, c, k[14], 9, -1019803690);
-    c = gg(c, d, a, b, k[3], 14, -187363961); b = gg(b, c, d, a, k[8], 20, 1163531501);
-    a = gg(a, b, c, d, k[13], 5, -1444681467); d = gg(d, a, b, c, k[2], 9, -51403784);
-    c = gg(c, d, a, b, k[7], 14, 1735328473); b = gg(b, c, d, a, k[12], 20, -1926607734);
-    a = hh(a, b, c, d, k[5], 4, -378558); d = hh(d, a, b, c, k[8], 11, -2022574463);
-    c = hh(c, d, a, b, k[11], 16, 1839030562); b = hh(b, c, d, a, k[14], 23, -35309556);
-    a = hh(a, b, c, d, k[1], 4, -1530992060); d = hh(d, a, b, c, k[4], 11, 1272893353);
-    c = hh(c, d, a, b, k[7], 16, -155497632); b = hh(b, c, d, a, k[10], 23, -1094730640);
-    a = hh(a, b, c, d, k[13], 4, 681279174); d = hh(d, a, b, c, k[0], 11, -358537222);
-    c = hh(c, d, a, b, k[3], 16, -722521979); b = hh(b, c, d, a, k[6], 23, 76029189);
-    a = hh(a, b, c, d, k[9], 4, -640364487); d = hh(d, a, b, c, k[12], 11, -421815835);
-    c = hh(c, d, a, b, k[15], 16, 530742520); b = hh(b, c, d, a, k[2], 23, -995338651);
-    a = ii(a, b, c, d, k[0], 6, -198630844); d = ii(d, a, b, c, k[7], 10, 1126891415);
-    c = ii(c, d, a, b, k[14], 15, -1416354905); b = ii(b, c, d, a, k[5], 21, -57434055);
-    a = ii(a, b, c, d, k[12], 6, 1700485571); d = ii(d, a, b, c, k[3], 10, -1894986606);
-    c = ii(c, d, a, b, k[10], 15, -1051523); b = ii(b, c, d, a, k[1], 21, -2054922799);
-    a = ii(a, b, c, d, k[8], 6, 1873313359); d = ii(d, a, b, c, k[15], 10, -30611744);
-    c = ii(c, d, a, b, k[6], 15, -1560198380); b = ii(b, c, d, a, k[13], 21, 1309151649);
-    a = ii(a, b, c, d, k[4], 6, -145523070); d = ii(d, a, b, c, k[11], 10, -1120210379);
-    c = ii(c, d, a, b, k[2], 15, 718787259); b = ii(b, c, d, a, k[9], 21, -343485551);
-    x[0] = add32(a, x[0]); x[1] = add32(b, x[1]); x[2] = add32(c, x[2]); x[3] = add32(d, x[3]);
-  };
-  function cmn(q, a, b, x, s, t) { a = add32(add32(a, q), add32(x, t)); return add32((a << s) | (a >>> (32 - s)), b); }
-  function ff(a, b, c, d, x, s, t) { return cmn((b & c) | (~b & d), a, b, x, s, t); }
-  function gg(a, b, c, d, x, s, t) { return cmn((b & d) | (c & ~d), a, b, x, s, t); }
-  function hh(a, b, c, d, x, s, t) { return cmn(b ^ c ^ d, a, b, x, s, t); }
-  function ii(a, b, c, d, x, s, t) { return cmn(c ^ (b | ~d), a, b, x, s, t); }
-  function add32(a, b) { return (a + b) & 0xFFFFFFFF; }
-  function md51(s) {
-    var n = s.length, state = [1732584193, -271733879, -1732584194, 271733878], i;
-    for (i = 64; i <= s.length; i += 64) md5cycle(md5blk(s.substring(i - 64, i)), state);
-    s = s.substring(i - 64);
-    var tail = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-    for (i = 0; i < s.length; i++) tail[i >> 2] |= s.charCodeAt(i) << ((i % 4) << 3);
-    tail[i >> 2] |= 0x80 << ((i % 4) << 3);
-    if (i > 55) { md5cycle(tail, state); for (i = 0; i < 16; i++) tail[i] = 0; }
-    tail[14] = n * 8;
-    md5cycle(tail, state);
-    return state;
-  }
-  function md5blk(s) {
-    var md5blks = [], i;
-    for (i = 0; i < 64; i += 4) md5blks[i >> 2] = s.charCodeAt(i) + (s.charCodeAt(i + 1) << 8) + (s.charCodeAt(i + 2) << 16) + (s.charCodeAt(i + 3) << 24);
-    return md5blks;
-  }
-  var rhex = function (n) {
-    var s = "", j = 0;
-    for (; j < 4; j++) s += ("0" + ((n >> (j * 8 + 4)) & 0x0F).toString(16)) + ("0" + ((n >> (j * 8)) & 0x0F).toString(16));
-    return s;
-  };
-  function md5(s) {
-    if (s.length > 4096) {   // 大数组走分块二进制路径
-      var words = [];
-      for (var i = 0; i < s.length; i++) words[i] = s[i];
-      return md5bin(words);
-    }
-    return md51(s).map(rhex).join("");
-  }
-  function md5bin(bytes) {   // 对字节数组做 MD5（分块处理 Uint8 值）
-    var state = [1732584193, -271733879, -1732584194, 271733878];
-    var n = bytes.length;
-    var i = 0;
-    var block = new Array(16);
-    while (i + 64 <= n) {
-      for (var k = 0; k < 16; k++) block[k] = bytes[i + k * 4] | (bytes[i + k * 4 + 1] << 8) | (bytes[i + k * 4 + 2] << 16) | (bytes[i + k * 4 + 3] << 24);
-      md5cycle(block, state);
-      i += 64;
-    }
-    var tail = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-    var rem = n - i, t = 0;
-    for (; t < rem; t++) tail[t >> 2] |= bytes[i + t] << ((t % 4) << 3);
-    tail[t >> 2] |= 0x80 << ((t % 4) << 3);
-    if (t > 55) { md5cycle(tail, state); tail = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]; }
-    tail[14] = n * 8;
-    md5cycle(tail, state);
-    return state.map(rhex).join("");
-  }
-
+  /* ================= Lux3D API 管线（同前版） ================= */
   var apiLogEl = $("apiLog");
-  function apilog(s) { apiLogEl.textContent += s + "\n"; apiLogEl._n = (apiLogEl._n || 0) + 1; if (apiLogEl._n > 9) apiLogEl.textContent = s + "\n"; }
+  function apilog(s) { apiLogEl.textContent += s + "\n"; }
   function proxy(url) { return "/proxy?url=" + encodeURIComponent(url); }
-
-  function apiBase() {
-    return $("apiRegion").value === "global" ? "https://api.aholo.ai/global" : "https://api.aholo3d.cn";
-  }
-
+  function apiBase() { return $("apiRegion").value === "global" ? "https://api.aholo.ai/global" : "https://api.aholo3d.cn"; }
   function apiFetch(url, opts) {
-    return fetch(proxy(url), opts).then(function (r) {
-      return r.text().then(function (t) {
-        return { code: r.status, text: t };
-      });
-    });
+    return fetch(proxy(url), opts).then(function (r) { return r.text().then(function (t) { return { code: r.status, text: t }; }); });
   }
-
   function jerr(prefix, r) {
     var m = "";
     try { m = JSON.parse(r.text).m || JSON.parse(r.text).error || ""; } catch (e) { m = (r.text || "").slice(0, 120); }
     throw new Error(prefix + " HTTP " + r.code + (m ? "：" + m : ""));
   }
-
+  function md5bin(bytes) {
+    function cmn(q, a, b, x, s, t) { a = (((a + q) | 0) + ((x + t) | 0)) | 0; return (((a << s) | (a >>> (32 - s))) + b) | 0; }
+    function ff(a, b, c, d, x, s, t) { return cmn((b & c) | (~b & d), a, b, x, s, t); }
+    function gg(a, b, c, d, x, s, t) { return cmn((b & d) | (c & ~d), a, b, x, s, t); }
+    function hh(a, b, c, d, x, s, t) { return cmn(b ^ c ^ d, a, b, x, s, t); }
+    function ii(a, b, c, d, x, s, t) { return cmn(c ^ (b | ~d), a, b, x, s, t); }
+    function cycle(x, k) {
+      var a = x[0], b = x[1], c = x[2], d = x[3];
+      a = ff(a, b, c, d, k[0], 7, -680876936); d = ff(d, a, b, c, k[1], 12, -389564586);
+      c = ff(c, d, a, b, k[2], 17, 606105819); b = ff(b, c, d, a, k[3], 22, -1044525330);
+      a = ff(a, b, c, d, k[4], 7, -176418897); d = ff(d, a, b, c, k[5], 12, 1200080426);
+      c = ff(c, d, a, b, k[6], 17, -1473231341); b = ff(b, c, d, a, k[7], 22, -45705983);
+      a = ff(a, b, c, d, k[8], 7, 1770035416); d = ff(d, a, b, c, k[9], 12, -1958414417);
+      c = ff(c, d, a, b, k[10], 17, -42063); b = ff(b, c, d, a, k[11], 22, -1990404162);
+      a = ff(a, b, c, d, k[12], 7, 1804603682); d = ff(d, a, b, c, k[13], 12, -40341101);
+      c = ff(c, d, a, b, k[14], 17, -1502002290); b = ff(b, c, d, a, k[15], 22, 1236535329);
+      a = gg(a, b, c, d, k[1], 5, -165796510); d = gg(d, a, b, c, k[6], 9, -1069501632);
+      c = gg(c, d, a, b, k[11], 14, 643717713); b = gg(b, c, d, a, k[0], 20, -373897302);
+      a = gg(a, b, c, d, k[5], 5, -701558691); d = gg(d, a, b, c, k[10], 9, 38016083);
+      c = gg(c, d, a, b, k[15], 14, -660478335); b = gg(b, c, d, a, k[4], 20, -405537848);
+      a = gg(a, b, c, d, k[9], 5, 568446438); d = gg(d, a, b, c, k[14], 9, -1019803690);
+      c = gg(c, d, a, b, k[3], 14, -187363961); b = gg(b, c, d, a, k[8], 20, 1163531501);
+      a = gg(a, b, c, d, k[13], 5, -1444681467); d = gg(d, a, b, c, k[2], 9, -51403784);
+      c = gg(c, d, a, b, k[7], 14, 1735328473); b = gg(b, c, d, a, k[12], 20, -1926607734);
+      a = hh(a, b, c, d, k[5], 4, -378558); d = hh(d, a, b, c, k[8], 11, -2022574463);
+      c = hh(c, d, a, b, k[11], 16, 1839030562); b = hh(b, c, d, a, k[14], 23, -35309556);
+      a = hh(a, b, c, d, k[1], 4, -1530992060); d = hh(d, a, b, c, k[4], 11, 1272893353);
+      c = hh(c, d, a, b, k[7], 16, -155497632); b = hh(b, c, d, a, k[10], 23, -1094730640);
+      a = hh(a, b, c, d, k[13], 4, 681279174); d = hh(d, a, b, c, k[0], 11, -358537222);
+      c = hh(c, d, a, b, k[3], 16, -722521979); b = hh(b, c, d, a, k[6], 23, 76029189);
+      a = hh(a, b, c, d, k[9], 4, -640364487); d = hh(d, a, b, c, k[12], 11, -421815835);
+      c = hh(c, d, a, b, k[15], 16, 530742520); b = hh(b, c, d, a, k[2], 23, -995338651);
+      a = ii(a, b, c, d, k[0], 6, -198630844); d = ii(d, a, b, c, k[7], 10, 1126891415);
+      c = ii(c, d, a, b, k[14], 15, -1416354905); b = ii(b, c, d, a, k[5], 21, -57434055);
+      a = ii(a, b, c, d, k[12], 6, 1700485571); d = ii(d, a, b, c, k[3], 10, -1894986606);
+      c = ii(c, d, a, b, k[10], 15, -1051523); b = ii(b, c, d, a, k[1], 21, -2054922799);
+      a = ii(a, b, c, d, k[8], 6, 1873313359); d = ii(d, a, b, c, k[15], 10, -30611744);
+      c = ii(c, d, a, b, k[6], 15, -1560198380); b = ii(b, c, d, a, k[13], 21, 1309151649);
+      a = ii(a, b, c, d, k[4], 6, -145523070); d = ii(d, a, b, c, k[11], 10, -1120210379);
+      c = ii(c, d, a, b, k[2], 15, 718787259); b = ii(b, c, d, a, k[9], 21, -343485551);
+      x[0] = (x[0] + a) | 0; x[1] = (x[1] + b) | 0; x[2] = (x[2] + c) | 0; x[3] = (x[3] + d) | 0;
+    }
+    var state = [1732584193, -271733879, -1732584194, 271733878];
+    var n = bytes.length, i = 0, block = new Array(16);
+    while (i + 64 <= n) {
+      for (var k = 0; k < 16; k++) block[k] = bytes[i + k * 4] | (bytes[i + k * 4 + 1] << 8) | (bytes[i + k * 4 + 2] << 16) | (bytes[i + k * 4 + 3] << 24);
+      cycle(block, state); i += 64;
+    }
+    var tail = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], t = 0, rem = n - i;
+    for (; t < rem; t++) tail[t >> 2] |= bytes[i + t] << ((t % 4) << 3);
+    tail[t >> 2] |= 0x80 << ((t % 4) << 3);
+    if (t > 55) { cycle(tail, state); tail = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]; }
+    tail[14] = n * 8;
+    cycle(tail, state);
+    function rhex(nn) {
+      var s = "", j = 0;
+      for (; j < 4; j++) s += ("0" + ((nn >> (j * 8 + 4)) & 0x0F).toString(16)) + ("0" + ((nn >> (j * 8)) & 0x0F).toString(16));
+      return s;
+    }
+    return state.map(rhex).join("");
+  }
   function generateWithLux3d() {
     if (!window._sketch) { toast("先上传草图"); return; }
     var key = $("apiKey").value.trim();
@@ -696,14 +1326,13 @@
     $("btnGenerate").disabled = true;
     apiLogEl.textContent = "";
     apilog("① 读取草图 " + file.name + " (" + Math.round(file.size / 1024) + " KB)");
-
     file.arrayBuffer().then(function (buf) {
       var bytes = new Uint8Array(buf);
       var digest = md5bin(bytes);
       apilog("② 获取上传凭证…");
       return apiFetch(base + "/asset/v1/token", { headers: { Authorization: key } }).then(function (r) {
         if (r.code !== 200) {
-          if (r.code === 401) throw new Error("API Key 无效（401），请到 Lux3D 控制台检查");
+          if (r.code === 401) throw new Error("API Key 无效（401）");
           jerr("获取上传凭证失败", r);
         }
         var o = JSON.parse(r.text);
@@ -729,11 +1358,8 @@
               .then(function (sr) {
                 if (sr.code !== 200) throw new Error("上传状态查询失败 HTTP " + sr.code);
                 var d = JSON.parse(sr.text).d || {};
-                if (d.status === 5) {
-                  if (!d.url) throw new Error("上传完成但未返回地址");
-                  return d.url;
-                }
-                if (d.status === 6 || d.status === 8) throw new Error("上传被中断，请检查网络后重试");
+                if (d.status === 5) { if (!d.url) throw new Error("上传完成但未返回地址"); return d.url; }
+                if (d.status === 6 || d.status === 8) throw new Error("上传被中断");
                 if (Date.now() > dl) throw new Error("上传处理超时");
                 return new Promise(function (res) { setTimeout(res, 800); }).then(pollUp);
               });
@@ -750,17 +1376,17 @@
         var o = {};
         try { o = JSON.parse(r.text); } catch (e) { throw new Error("创建任务返回异常 HTTP " + r.code); }
         if (o.c !== "0") {
-          var c = o.c || "";
-          if (c.indexOf("CONCURRENCY") >= 0) throw new Error("已有进行中的任务，等完成后再试（免费账号并发 5 个）");
-          if (c.indexOf("CREDIT") >= 0 || c.indexOf("INSUFFICIENT") >= 0) throw new Error("积分不足，请到 Lux3D 控制台补充");
-          throw new Error(o.m || ("创建任务失败（" + c + "）"));
+          var cc = o.c || "";
+          if (cc.indexOf("CONCURRENCY") >= 0) throw new Error("已有进行中的任务，稍后再试");
+          if (cc.indexOf("CREDIT") >= 0 || cc.indexOf("INSUFFICIENT") >= 0) throw new Error("积分不足，请到控制台补充");
+          throw new Error(o.m || ("创建任务失败（" + cc + "）"));
         }
         var id = typeof o.d === "number" ? o.d : parseInt(o.d, 10);
         if (!id) throw new Error("创建任务未返回任务号");
         return id;
       });
     }).then(function (taskId) {
-      apilog("⑥ 生成中… 任务号 " + taskId + "，每 5 秒查询（约 1–5 分钟）");
+      apilog("⑥ 生成中… 任务号 " + taskId);
       var deadline = Date.now() + 12 * 60 * 1000;
       function pollTask() {
         return apiFetch(base + "/lux3d/v1/generate/task/get?taskid=" + taskId, { headers: { Authorization: key } })
@@ -782,7 +1408,7 @@
               try { msg = JSON.parse((d.outputs || [{}])[0].content || "{}").message || ""; } catch (e) {}
               throw new Error("生成失败" + (msg ? "：" + msg : "（状态 " + st + "）"));
             }
-            if (Date.now() > deadline) throw new Error("生成超时（12 分钟），可稍后到 Lux3D 控制台取结果");
+            if (Date.now() > deadline) throw new Error("生成超时，可稍后到控制台取结果");
             return new Promise(function (res) { setTimeout(res, 5000); }).then(pollTask);
           });
       }
@@ -795,7 +1421,7 @@
       });
     }).then(function (buf) {
       var name = file.name.replace(/\.[^.]+$/, "") + "-" + engine + ".glb";
-      loadGLBArrayBuffer(buf, name);   // 内部已入胶片栏
+      loadGLBArrayBuffer(buf, name);
       apilog("✅ 完成！模型已进入预览与质检");
       toast("Lux3D 生成完成 ✨");
       $("btnGenerate").disabled = false;
@@ -806,23 +1432,69 @@
     });
   }
   $("btnGenerate").addEventListener("click", generateWithLux3d);
-  $("btnStl").addEventListener("click", exportSTL);
-  $("btnPng").addEventListener("click", exportPNG);
-  $("btnSpin").addEventListener("click", function () {
-    spin = !spin; $("btnSpin").textContent = spin ? "暂停转台" : "开启转台";
-  });
-  $("btnReset").addEventListener("click", function () { theta = 0.6; phi = 0.25; dist = 3; applyCam(); });
-  $("calSize").addEventListener("change", function () { if (model) analyze(); });
 
-  // 录制/自动化钩子：供视频合成脚本驱动相机与转台
+  /* ================= 录制钩子 ================= */
   window.__s2j = {
     setYaw: function (deg) { theta = (deg * Math.PI) / 180; applyCam(); },
     setPitch: function (deg) { phi = (deg * Math.PI) / 180; applyCam(); },
     setZoom: function (d) { dist = d; applyCam(); },
-    frame: function () { renderer.render(scene, camera); return true; }
+    frame: function () { renderer.render(scene, camera); return true; },
+    finish: function (id) { applyMetal(METALS.find(function (m) { return m.id === id; }) || METALS[0], null); },
+    addGem: function (gemId, cutId, dia) {
+      if (!model) return false;
+      var box = new THREE.Box3().setFromObject(model);
+      var c = box.getCenter(new THREE.Vector3());
+      var top = box.max.y;
+      var gg = gemGeometry(cutId || "round", dia || 6.5);
+      var gem = GEMS.find(function (g) { return g.id === (gemId || "ruby"); });
+      var mesh = new THREE.Mesh(gg.geo, makeGem(gem, cutId || "round"));
+      var sc = scaleMM();
+      mesh.scale.setScalar(1 / sc);
+      mesh.position.set(c.x, top, c.z);
+      mesh.userData = { isGem: true, cutId: cutId || "round", gemId: gemId || "ruby", dia: dia || 6.5 };
+      gemRoot.add(mesh);
+      placedGems.push({ mesh: mesh, cutId: cutId || "round", gemId: gemId || "ruby", dia: dia || 6.5 });
+      return true;
+    },
+    state: function () { return { gems: placedGems.length, mode: mode }; },
+    debugPick: function (cx, cy) {
+      var rect = renderer.domElement.getBoundingClientRect();
+      var mx = ((cx - rect.left) / rect.width) * 2 - 1;
+      var my = -((cy - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera({ x: mx, y: my }, camera);
+      var hits = raycaster.intersectObjects([model, gemRoot], true);
+      return hits.slice(0, 3).map(function (h) {
+        return { name: h.object.name || h.object.uuid.slice(0, 6), isGem: !!h.object.userData.isGem, isModel: !!h.object.userData.isModel, dist: Math.round(h.distance * 100) / 100 };
+      });
+    },
+    screenOf: function (kind, k) {
+      var rect = renderer.domElement.getBoundingClientRect();
+      function toScreen(v3) {
+        var v = v3.clone().project(camera);
+        return { x: rect.left + (v.x * 0.5 + 0.5) * rect.width, y: rect.top + (-v.y * 0.5 + 0.5) * rect.height };
+      }
+      if (kind === "gem" && gemRoot.children.length) return toScreen(gemRoot.children[gemRoot.children.length - 1].getWorldPosition(new THREE.Vector3()));
+      if (kind === "gemAny" && placedGems.length) return toScreen(placedGems[k || 0].mesh.getWorldPosition(new THREE.Vector3()));
+      if (kind === "band") {
+        var box = new THREE.Box3().setFromObject(model);
+        var s = k || 0;
+        return toScreen(new THREE.Vector3(s === 0 ? box.min.x + 0.03 : (s === 1 ? box.max.x - 0.03 : 0), s === 2 ? box.min.y + 0.02 : 0, s === 3 ? box.min.z + 0.02 : 0));
+      }
+      if (kind === "center") {
+        var box3 = new THREE.Box3().setFromObject(model);
+        return toScreen(box3.getCenter(new THREE.Vector3()));
+      }
+      if (kind === "inner") {
+        var box2 = new THREE.Box3().setFromObject(model);
+        var r = (box2.max.x - box2.min.x) * 0.36;
+        return toScreen(new THREE.Vector3((k === 0 ? -1 : 1) * r, 0, 0));
+      }
+      return null;
+    }
   };
 
   resize();
+  showDeliverySheet();
 })();
 </script>
 </body>
