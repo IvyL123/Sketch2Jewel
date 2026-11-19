@@ -180,6 +180,12 @@
   }
   .cutitem:hover { border-color: #8a7ea0; }
   .cutitem.active { border-color: var(--gold); color: var(--gold-bright); background: rgba(212,169,78,.08); }
+  .setitem {
+    border: 1px solid #3c3550; border-radius: 16px; padding: 5px 11px; cursor: pointer;
+    font-size: 11.5px; background: #171420; color: var(--text); display: inline-block;
+  }
+  .setitem:hover { border-color: #8a7ea0; }
+  .setitem.active { border-color: var(--gold); color: var(--gold-bright); background: rgba(212,169,78,.08); }
   .gemview { width: 100%; height: 150px; border-radius: 10px; background: #0d0b13; border: 1px solid #2e2940; }
   .foot { padding: 8px 20px; font-size: 11px; color: #6a6478; border-top: 1px solid #262130; flex: 0 0 auto; }
   .toast {
@@ -535,6 +541,10 @@
   /* 轮廓缩放堆叠（阶梯切/明亮式通用的 frustum stack），flat 法线 */
   function gemGeometry(cut, diaMm) {
     var def = CUTS.find(function (c) { return c.id === cut; });
+    if (!def) {
+      apiLogEl.textContent += "\n[dbg] bad cut=" + JSON.stringify(cut) + " stack=" + ((new Error().stack || "").split("\n")[2] || "").trim();
+      def = CUTS[0];
+    }
     var pts = outlinePoints(def.outline);
     var H = diaMm * (def.kind === "step" ? 0.72 : 0.62);   // 全高
     var layers = [];
@@ -1055,7 +1065,7 @@
       select(hit.object, { type: "mesh", partName: hit.object.userData.partName || hit.object.name || ("部件 " + hit.object.uuid.slice(0, 5)) });
     } else if (mode === "gem") {
       if (hit && hit.object.userData.isGem) { select(hit.object, { type: "gem" }); return; }
-      if (!hit || (!hit.object.userData.isModel && !hit.object.userData.isGem)) { toast("请点击模型表面放置宝石"); return; }
+      if (!hit || (!hit.object.userData.isModel && !hit.object.userData.isGem && !hit.object.userData.isTeardrop)) { toast("请点击模型表面放置宝石"); return; }
       if (!gemSel.gemId || !gemSel.cutId) { toast("先在右侧选择宝石与切工"); return; }
       placeGem(hit);
     } else if (mode === "clean") {
@@ -1168,7 +1178,7 @@
   function settingBtns(cur) {
     return ["bezel", "prong", "none"].map(function (s) {
       var nm = s === "bezel" ? "包镶" : (s === "prong" ? "爪镶" : "无镶口");
-      return '<span class="cutitem' + (cur === s ? " active" : "") + '" data-set="' + s + '">' + nm + '</span>';
+      return '<span class="setitem' + (cur === s ? " active" : "") + '" data-set="' + s + '">' + nm + '</span>';
     }).join("");
   }
   function gemThumb(gemId, cutId, dia) {
@@ -1227,7 +1237,9 @@
     });
     Array.prototype.forEach.call(document.querySelectorAll(".cutitem"), function (el) {
       el.addEventListener("click", function () {
-        gemSel.cutId = el.getAttribute("data-cid");
+        var cid = el.getAttribute("data-cid");
+        if (!cid) return;
+        gemSel.cutId = cid;
         Array.prototype.forEach.call(document.querySelectorAll(".cutitem"), function (x) { x.classList.remove("active"); });
         el.classList.add("active");
         $("cutHint").textContent = cutInfo();
@@ -1870,7 +1882,32 @@
       rebuildSetting(rec);
       return true;
     },
-    state: function () { return { gems: placedGems.length, mode: mode }; },
+    state: function () { return { gems: placedGems.length, mode: mode, gemSel: JSON.parse(JSON.stringify(gemSel)) }; },
+    addTeardrop: function (mmW, mmH, opal) {
+      // 白水晶/贴片欧泊水滴贴片：嵌进水滴镂空框架的大镶嵌位
+      if (!model) return false;
+      var w = mmW || 22, h = mmH || 32;
+      var shape = new THREE.Shape();
+      shape.moveTo(0, h * 0.5);                                       // 顶尖
+      shape.bezierCurveTo(w * 0.18, h * 0.22, w * 0.5, -h * 0.10, w * 0.5, -h * 0.28);
+      shape.bezierCurveTo(w * 0.5, -h * 0.46, w * 0.28, -h * 0.5, 0, -h * 0.5);
+      shape.bezierCurveTo(-w * 0.28, -h * 0.5, -w * 0.5, -h * 0.46, -w * 0.5, -h * 0.28);
+      shape.bezierCurveTo(-w * 0.5, -h * 0.10, -w * 0.18, h * 0.22, 0, h * 0.5);
+      var geo = new THREE.ShapeGeometry(shape, 48);
+      var mat = opal
+        ? new THREE.MeshPhysicalMaterial({ color: 0xe8eef8, metalness: 0, roughness: 0.25, transmission: 0.55, thickness: 1.6, clearcoat: 1, clearcoatRoughness: 0.15, envMapIntensity: 1.5, side: THREE.DoubleSide })
+        : new THREE.MeshPhysicalMaterial({ color: 0xf2f5f8, metalness: 0, roughness: 0.06, transmission: 0.92, thickness: 2.2, ior: 1.54, clearcoat: 1, clearcoatRoughness: 0.05, envMapIntensity: 1.6, side: THREE.DoubleSide });
+      var mesh = new THREE.Mesh(geo, mat);
+      var sc = scaleMM();
+      mesh.scale.setScalar(1 / sc);
+      // 置于模型包围盒中心，面向当前相机（贴合吊坠平面）
+      var box = new THREE.Box3().setFromObject(model);
+      mesh.position.copy(box.getCenter(new THREE.Vector3()));
+      mesh.quaternion.copy(camera.quaternion);
+      mesh.userData = { isTeardrop: true };
+      gemRoot.add(mesh);
+      return true;
+    },
     debugPick: function (cx, cy) {
       var rect = renderer.domElement.getBoundingClientRect();
       var mx = ((cx - rect.left) / rect.width) * 2 - 1;
