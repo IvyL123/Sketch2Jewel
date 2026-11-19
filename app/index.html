@@ -270,6 +270,7 @@
       </div>
       <div class="hint" style="margin-top:10px">
         没有 GLB？<a href="#" id="btnDemo">载入示例戒指</a> 先体验材质配置与导出。
+        <div style="margin-top:8px"><button id="btnWreathTemplate">参数化模板：花环剑吊坠</button></div>
       </div>
     </div>
   </div>
@@ -1593,6 +1594,11 @@
   });
   $("btnOpenLux").addEventListener("click", function () { window.open("https://3d.aholo.cn", "_blank"); });
   $("btnDemo").addEventListener("click", function (e) { e.preventDefault(); loadDemo(); });
+  $("btnWreathTemplate").addEventListener("click", function (e) {
+    e.preventDefault();
+    prepare(buildWreathSwordModel());
+    toast("参数化模板《花环剑》已载入：每个零件均为实体建模，可点击换材质/查看");
+  });
   $("btnSpin").addEventListener("click", function () {
     spin = !spin; $("btnSpin").textContent = spin ? "⏸" : "▶";
   });
@@ -1858,6 +1864,191 @@
   $("btnGenerate").addEventListener("click", generateWithLux3d);
 
   /* ================= 录制钩子 ================= */
+  /* ================= 参数化建模模板：花环剑吊坠 =================
+     以实体零件组装还原设计：银剑+银羽+银镰+银百合 × 金雏菊×3+金月桂 × 欧泊蛋面主石
+     每个零件为参数化实体（非 AI 网格），语义正确、壁厚实在 —— 治「钢筋感」的产品级方案 */
+  function buildWreathSwordModel() {
+    var g = new THREE.Group();
+    var SILVER = makeMetal(METALS[2]);
+    var GOLD = makeMetal(METALS[0]);
+    function M(mesh, mat, name) { mesh.material = mat; mesh.userData.partName = name; g.add(mesh); return mesh; }
+
+    /* —— 剑（斜置，银）：菱形截面剑身+剑尖+花形护手+缠绳柄+柄尾 —— */
+    var sword = new THREE.Group();
+    var blade = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.9, 30, 4), SILVER);
+    blade.rotation.y = Math.PI / 4;
+    blade.position.y = 15 - 4;
+    sword.add(blade);
+    var tip = new THREE.Mesh(new THREE.CylinderGeometry(0.0, 0.9, 6, 4), SILVER);
+    tip.rotation.y = Math.PI / 4;
+    tip.position.y = 30 - 4 + 3 - 0.5;
+    sword.add(tip);
+    var boss = new THREE.Mesh(new THREE.SphereGeometry(1.15, 14, 12), SILVER);
+    boss.scale.set(1.3, 0.8, 1);
+    sword.add(boss);
+    for (var side = -1; side <= 1; side += 2) {
+      var guard = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.72, 7.5, 4), SILVER);
+      guard.rotation.z = side * Math.PI / 2;
+      guard.position.x = side * 4.6;
+      sword.add(guard);
+      var guardTip = new THREE.Mesh(new THREE.SphereGeometry(0.42, 10, 8), SILVER);
+      guardTip.position.x = side * 8.0;
+      sword.add(guardTip);
+    }
+    for (var ri = 0; ri < 6; ri++) {
+      var wrap = new THREE.Mesh(new THREE.TorusGeometry(0.72, 0.26, 8, 14), SILVER);
+      wrap.rotation.x = Math.PI / 2;
+      wrap.position.y = -6 - ri * 1.05;
+      wrap.rotation.z = ri * 0.5;
+      sword.add(wrap);
+    }
+    var pommel = new THREE.Mesh(new THREE.SphereGeometry(0.85, 14, 12), SILVER);
+    pommel.position.y = -13.2;
+    sword.add(pommel);
+    var pommelTip = new THREE.Mesh(new THREE.CylinderGeometry(0.0, 0.5, 1.6, 10), SILVER);
+    pommelTip.position.y = -14.6;
+    sword.add(pommelTip);
+    sword.rotation.z = -0.72;                       // 斜置：柄左上→尖右下
+    M(sword, SILVER, "剑（银）");
+    sword.position.set(-1, 2, 0);
+
+    /* —— 羽毛（银）：中管+羽丝对生，沿剑身上侧 —— */
+    var feather = new THREE.Group();
+    var FL = 26;
+    var quill = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.3, FL, 8), SILVER);
+    quill.position.y = FL / 2 - 4;
+    feather.add(quill);
+    for (var b = 0; b < 24; b++) {
+      var t = b / 23;
+      var bl = 5.4 * (1 - t) + 1.6;
+      for (var s2 = -1; s2 <= 1; s2 += 2) {
+        var barb = new THREE.Mesh(new THREE.ConeGeometry(0.85, bl, 4), SILVER);
+        barb.scale.z = 0.10;
+        var grp = new THREE.Group();
+        grp.add(barb);
+        barb.position.y = bl * 0.45;
+        grp.position.set(0, -3.5 + b * 0.95, 0);
+        grp.rotation.z = s2 * (2.25 - t * 0.2);   // 向两侧压平
+        grp.rotation.x = 0.0;
+        feather.add(grp);
+      }
+    }
+    feather.rotation.z = -0.72;
+    feather.position.set(-4.6, 4.5, 0.4);
+    M(feather, SILVER, "羽毛（银）");
+
+    /* —— 镰刀月牙（银）：弧形刀身+尖 —— */
+    var sickle = new THREE.Group();
+    var arc = new THREE.Mesh(new THREE.TorusGeometry(7.0, 1.9, 12, 40, 3.7), SILVER);
+    arc.scale.z = 0.55;
+    sickle.add(arc);
+    var sickleTip = new THREE.Mesh(new THREE.ConeGeometry(1.5, 5, 4), SILVER);
+    sickleTip.scale.z = 0.5;
+    sickleTip.position.set(9.4, -6.2, 0);
+    sickleTip.rotation.z = 2.4;
+    sickle.add(sickleTip);
+    sickle.position.set(8.5, 12.5, -0.3);
+    sickle.rotation.z = 3.5;
+    M(sickle, SILVER, "镰刀月牙（银）");
+
+    /* —— 雏菊 ×3（金）：花芯+花瓣辐射 —— */
+    function daisy(pet, sc) {
+      var fl = new THREE.Group();
+      var core = new THREE.Mesh(new THREE.SphereGeometry(pet * 0.52, 12, 10), GOLD);
+      core.scale.y = 0.5;
+      fl.add(core);
+      for (var p = 0; p < 14; p++) {
+        var a = p / 14 * Math.PI * 2;
+        var pt = new THREE.Mesh(new THREE.SphereGeometry(1, 10, 8), GOLD);
+        pt.scale.set(pet * 0.62, pet * 0.30, pet * 0.14);
+        pt.position.set(Math.cos(a) * pet * 0.62, 0, Math.sin(a) * pet * 0.62);
+        pt.rotation.y = -a;
+        pt.rotation.z = 0.12;
+        fl.add(pt);
+      }
+      fl.scale.setScalar(sc);
+      return fl;
+    }
+    var positions = [[-10.5, -11.5, 2.2], [-3.5, -14.5, 1.6], [6.0, -13.5, 1.0]];
+    positions.forEach(function (pp, i) {
+      var fl = daisy(pp[2], 1);
+      fl.position.set(pp[0], pp[1], i * 0.5);
+      fl.rotation.y = i * 0.9;
+      M(fl, GOLD, "雏菊 " + (i + 1) + "（金）");
+    });
+
+    /* —— 百合（银）：6 花瓣外翻+金蕊 —— */
+    var lily = new THREE.Group();
+    for (var lp = 0; lp < 6; lp++) {
+      var a2 = lp / 6 * Math.PI * 2;
+      var petal = new THREE.Mesh(new THREE.SphereGeometry(1, 12, 10), SILVER);
+      petal.scale.set(2.0, 2.9, 0.65);
+      petal.position.set(Math.cos(a2) * 1.9, 0.6, Math.sin(a2) * 1.9);
+      petal.rotation.set(Math.sin(a2) * 0.5, 0, Math.cos(a2) * 0.5);
+      lily.add(petal);
+    }
+    for (var st = 0; st < 5; st++) {
+      var fil = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 2.4, 6), GOLD);
+      fil.position.set(Math.cos(st / 5 * Math.PI * 2) * 0.42, 0.8, Math.sin(st / 5 * Math.PI * 2) * 0.42);
+      fil.rotation.set(Math.cos(st / 5 * Math.PI * 2) * 0.5, 0, -Math.sin(st / 5 * Math.PI * 2) * 0.5);
+      lily.add(fil);
+      var anther = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 6), GOLD);
+      anther.position.copy(fil.position).multiplyScalar(1.55);
+      lily.add(anther);
+    }
+    lily.position.set(9.8, -9.8, 0.6);
+    lily.rotation.z = 0.35;
+    M(lily, SILVER, "百合（银）");
+
+    /* —— 月桂枝（金）：弧形茎+对生叶 —— */
+    function laurel(a0, a1, R, leafN) {
+      var br = new THREE.Group();
+      var pts = [];
+      for (var i = 0; i <= 16; i++) {
+        var a = a0 + (a1 - a0) * i / 16;
+        pts.push(new THREE.Vector3(Math.cos(a) * R, Math.sin(a) * R, 0.3));
+      }
+      var stem = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 24, 0.32, 8), GOLD);
+      br.add(stem);
+      for (var i2 = 0; i2 < leafN; i2++) {
+        var t = i2 / (leafN - 1);
+        var a3 = a0 + (a1 - a0) * t;
+        for (var s3 = -1; s3 <= 1; s3 += 2) {
+          var leaf = new THREE.Mesh(new THREE.SphereGeometry(1, 10, 8), GOLD);
+          leaf.scale.set(1.55, 0.32, 0.62);
+          leaf.position.set(Math.cos(a3) * (R + s3 * 1.15), Math.sin(a3) * (R + s3 * 1.15), 0.3);
+          leaf.rotation.z = a3 + Math.PI / 2 + s3 * 0.7;
+          br.add(leaf);
+        }
+      }
+      return br;
+    }
+    var lau1 = laurel(3.6, 6.0, 15.0, 14);
+    M(lau1, GOLD, "月桂枝右（金）");
+    var lau2 = laurel(3.9, 5.6, 17.5, 11);
+    lau2.position.z = -0.5; lau2.position.y = 4;
+    M(lau2, GOLD, "月桂枝外（金）");
+
+    /* —— 欧泊蛋面主石（中央大镶嵌位）+ 银包边 —— */
+    var opalMat = new THREE.MeshPhysicalMaterial({
+      color: 0x0d4fa8, metalness: 0, roughness: 0.28,
+      transmission: 0.0, thickness: 3, ior: 1.45,
+      clearcoat: 1, clearcoatRoughness: 0.12,
+      envMapIntensity: 1.3, emissive: 0x0a3d85, emissiveIntensity: 0.9, roughness: 0.3
+    });
+    var opal = new THREE.Mesh(new THREE.SphereGeometry(5.4, 28, 22), opalMat);
+    opal.scale.set(1, 0.82, 0.58);
+    opal.position.set(-1.5, 1.5, 1.2);
+    opal.userData.partName = "欧泊主石";
+    g.add(opal);
+    var bezelRing = new THREE.Mesh(new THREE.TorusGeometry(4.4, 0.55, 12, 30), SILVER);
+    bezelRing.position.set(-1.5, 1.5, 1.2);
+    g.add(bezelRing);
+    g.userData.isModel = true;
+    g.traverse(function (o) { if (o.isMesh && !o.userData.partName) o.userData.partName = "金属件"; });
+    return g;
+  }
+
   window.__s2j = {
     setYaw: function (deg) { theta = (deg * Math.PI) / 180; applyCam(); },
     setPitch: function (deg) { phi = (deg * Math.PI) / 180; applyCam(); },
@@ -1883,6 +2074,7 @@
       return true;
     },
     state: function () { return { gems: placedGems.length, mode: mode, gemSel: JSON.parse(JSON.stringify(gemSel)) }; },
+    loadWreathSword: function () { prepare(buildWreathSwordModel()); return true; },
     addTeardrop: function (mmW, mmH, opal) {
       // 白水晶/贴片欧泊水滴贴片：嵌进水滴镂空框架的大镶嵌位
       if (!model) return false;
