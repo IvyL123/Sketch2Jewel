@@ -212,6 +212,17 @@
     </div>
 
     <div class="step">
+      <h3><span class="num">✦</span>AI 设计图增强（可选）</h3>
+      <label class="f">智谱 BigModel API Key <a href="https://open.bigmodel.cn/usercenter/apikeys" target="_blank" style="color:var(--gold-bright)">获取 ↗</a> <span style="color:var(--ok)">GLM-4V-Flash 免费</span></label>
+      <input type="text" id="bmKey" placeholder="粘贴智谱 API Key">
+      <label class="f">你的设计描述（补充想法）</label>
+      <textarea id="bmDesc" rows="2" placeholder="例：六翼天使主题，剑穿黄宝石，翅膀走向参考草图…" style="width:100%;background:#171420;border:1px solid #3c3550;border-radius:8px;color:var(--text);padding:7px 10px;font-size:12.5px;font-family:inherit;resize:vertical"></textarea>
+      <div style="margin-top:8px"><button id="btnConcept">🎨 生成成熟设计图</button></div>
+      <img id="conceptPreview" style="width:100%;border-radius:8px;margin-top:8px;display:none" alt="设计图预览">
+      <div class="hint">潦草草图 + 一句话 → GLM-4V 读懂结构 → CogView-4 绘制成熟设计图 → 采用后直接生成 3D。潦草草图也能出专业设计。</div>
+    </div>
+
+    <div class="step">
       <h3><span class="num">2</span>生成 3D 模型</h3>
       <div class="tabs">
         <button id="tabApi" class="active">自动 · Lux3D API</button>
@@ -318,6 +329,7 @@
     { id: "diamond", nm: "钻石",   color: 0xf4f6ff, ri: 2.417, sg: 3.52, mohs: 10, trans: 0.96, att: 0xf8f9ff },
     { id: "ruby",    nm: "红宝石", color: 0x9c0f36, ri: 1.77,  sg: 4.00, mohs: 9,  trans: 0.86, att: 0x6e0824 },
     { id: "sapphire",nm: "蓝宝石", color: 0x1140a8, ri: 1.77,  sg: 4.00, mohs: 9,  trans: 0.88, att: 0x0c2f85 },
+    { id: "ysapphire", nm: "黄色蓝宝石", color: 0xe8c24a, ri: 1.77, sg: 4.00, mohs: 9, trans: 0.88, att: 0xc79a2a },
     { id: "psapphire", nm: "紫色蓝宝石", color: 0x7b5fc0, ri: 1.77, sg: 4.00, mohs: 9, trans: 0.88, att: 0x5a44a0 },
     { id: "pspinel",   nm: "紫色尖晶石", color: 0x9a4fc8, ri: 1.72, sg: 3.60, mohs: 8, trans: 0.90, att: 0x7a3aa5 },
     { id: "emerald", nm: "祖母绿", color: 0x0f8f4d, ri: 1.58,  sg: 2.76, mohs: 7.5,trans: 0.82, att: 0x0a6b39 },
@@ -1540,7 +1552,7 @@
     });
     f.addEventListener("change", function () { if (f.files[0]) handler(f.files[0]); });
   }
-  bindDrop("sketchDrop", "sketchFile", function (file) {
+  function setSketchFile(file, silent) {
     var url = URL.createObjectURL(file);
     var img = $("sketchThumb");
     img.src = url; img.style.display = "block";
@@ -1548,8 +1560,11 @@
     $("btnGenerate").disabled = false;
     $("sketchFloatImg").src = url;
     $("sketchFloat").style.display = "block";
-    toast("草图已上传：" + file.name);
+    if (!silent) toast("草图已上传：" + file.name);
     window._sketch = file;
+  }
+  bindDrop("sketchDrop", "sketchFile", function (file) {
+    setSketchFile(file);
   });
   bindDrop("glbDrop", "glbFile", function (file) {
     var r = new FileReader();
@@ -1570,6 +1585,72 @@
     spin = !spin; $("btnSpin").textContent = spin ? "⏸" : "▶";
   });
   $("btnReset").addEventListener("click", function () { theta = 0.7; phi = 0.22; dist = 3.2; applyCam(); });
+
+  /* ================= AI 设计图增强：GLM-4V 识图 + CogView-4 出图 ================= */
+  function bmProxy(url) { return "/proxy?url=" + encodeURIComponent(url); }
+  function fileToB64(file) {
+    return new Promise(function (res, rej) {
+      var r = new FileReader();
+      r.onload = function () { res(r.result.split(",")[1]); };
+      r.onerror = rej;
+      r.readAsDataURL(file);
+    });
+  }
+  $("btnConcept").addEventListener("click", function () {
+    var k = $("bmKey").value.trim();
+    if (!k) { toast("先填智谱 BigModel API Key"); return; }
+    if (!window._sketch) { toast("先上传草图"); return; }
+    var btn = $("btnConcept");
+    btn.disabled = true; btn.textContent = "生成中…（约 20 秒）";
+    var userDesc = $("bmDesc").value.trim();
+    fileToB64(window._sketch).then(function (b64) {
+      // ① GLM-4V-Flash（免费）：读懂草图结构
+      var body1 = JSON.stringify({
+        model: "glm-4v-flash",
+        messages: [{
+          role: "user",
+          content: [
+            { type: "image_url", image_url: { url: "data:image/png;base64," + b64 } },
+            { type: "text", text: "你是资深珠宝设计师。把这张手绘草图转写为一份可交给AI绘图的专业设计指令：说明主体结构、每个部件的金属材质与颜色、宝石的种类/切割/位置、装饰元素与走向、整体风格。只输出设计指令本身，简洁精准。" }
+          ]
+        }]
+      });
+      return fetch(bmProxy("https://open.bigmodel.cn/api/paas/v4/chat/completions"), {
+        method: "POST", headers: { Authorization: "Bearer " + k, "Content-Type": "application/json" }, body: body1
+      }).then(function (r) { return r.json(); }).then(function (j) {
+        if (!j.choices) throw new Error(j.error ? j.error.message : "GLM-4V 调用失败");
+        return j.choices[0].message.content;
+      });
+    }).then(function (vision) {
+      // ② CogView-4：绘制成熟设计图
+      var prompt = "专业珠宝设计手绘稿，精致写实风格：" + (userDesc ? userDesc + "。" : "") + vision + " 纯白背景，无文字，无标注，无尺寸线。";
+      return fetch(bmProxy("https://open.bigmodel.cn/api/paas/v4/images/generations"), {
+        method: "POST",
+        headers: { Authorization: "Bearer " + k, "Content-Type": "application/json" },
+        body: JSON.stringify({ model: "cogview-4", prompt: prompt, size: "1024x1024" })
+      }).then(function (r) { return r.json(); }).then(function (j) {
+        if (!j.data || !j.data[0]) throw new Error(j.error ? j.error.message : "CogView-4 调用失败");
+        return j.data[0].url;
+      });
+    }).then(function (url) {
+      // ③ 下载设计图 → 设为生成输入
+      return fetch(bmProxy(url)).then(function (r) {
+        if (!r.ok) throw new Error("设计图下载失败 HTTP " + r.status);
+        return r.blob();
+      }).then(function (blob) {
+        var file = new File([blob], "ai-concept.png", { type: "image/png" });
+        setSketchFile(file, true);
+        var pv = $("conceptPreview");
+        pv.src = URL.createObjectURL(blob);
+        pv.style.display = "block";
+        toast("设计图已生成并采用 ✨ 可直接生成 3D");
+        btn.disabled = false; btn.textContent = "🎨 重新生成设计图";
+      });
+    }).catch(function (err) {
+      toast("设计图生成失败：" + (err && err.message ? err.message : err));
+      btn.disabled = false; btn.textContent = "🎨 生成成熟设计图";
+    });
+  });
 
   /* ================= Lux3D API 管线（同前版） ================= */
   var apiLogEl = $("apiLog");
