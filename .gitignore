@@ -11,3 +11,12 @@ docs/video/m2-yaw-*.jpg
 docs/video/task2-standalone.jpg
 app/_m1.glb
 app/_check-*.glb
+app/_m3.glb
+app/_m4.glb
+app/_m5.glb
+app/_m1.glb
+app/_m2.glb
+app/_sketchgems.json
+segment_sketch.py
+build_report_pdf.py
+build_video_cards.py

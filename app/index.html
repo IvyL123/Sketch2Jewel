@@ -272,6 +272,7 @@
       <button id="modeMetal">🏭 材质</button>
       <button id="modeGem">💎 镶宝石</button>
       <button id="modeRing">📏 测指围</button>
+      <button id="modeClean">✂ 清理</button>
       <div class="sep"></div>
       <button id="btnSpin" class="tool-sm">⏸</button>
       <button id="btnReset" class="tool-sm">⌂</button>
@@ -317,6 +318,8 @@
     { id: "diamond", nm: "钻石",   color: 0xf4f6ff, ri: 2.417, sg: 3.52, mohs: 10, trans: 0.96, att: 0xf8f9ff },
     { id: "ruby",    nm: "红宝石", color: 0x9c0f36, ri: 1.77,  sg: 4.00, mohs: 9,  trans: 0.86, att: 0x6e0824 },
     { id: "sapphire",nm: "蓝宝石", color: 0x1140a8, ri: 1.77,  sg: 4.00, mohs: 9,  trans: 0.88, att: 0x0c2f85 },
+    { id: "psapphire", nm: "紫色蓝宝石", color: 0x7b5fc0, ri: 1.77, sg: 4.00, mohs: 9, trans: 0.88, att: 0x5a44a0 },
+    { id: "pspinel",   nm: "紫色尖晶石", color: 0x9a4fc8, ri: 1.72, sg: 3.60, mohs: 8, trans: 0.90, att: 0x7a3aa5 },
     { id: "emerald", nm: "祖母绿", color: 0x0f8f4d, ri: 1.58,  sg: 2.76, mohs: 7.5,trans: 0.82, att: 0x0a6b39 },
     { id: "spinel",  nm: "尖晶石", color: 0xe23a6e, ri: 1.72,  sg: 3.60, mohs: 8,  trans: 0.90, att: 0xb02a54 },
     { id: "aquamarine", nm: "海蓝宝", color: 0x7fd4e8, ri: 1.58, sg: 2.72, mohs: 7.5, trans: 0.92, att: 0x5cb8cf },
@@ -363,9 +366,10 @@
   var scene = new THREE.Scene();
   var camera = new THREE.PerspectiveCamera(40, 1, 0.1, 5000);
   var modelRoot = new THREE.Group();
-  var gemRoot = new THREE.Group();          // 镶嵌宝石层
-  var markerRoot = new THREE.Group();       // 测量标记层
-  scene.add(modelRoot); scene.add(gemRoot); scene.add(markerRoot);
+  var gemRoot = new THREE.Group();          // 镶嵌宝石层（随转台旋转）
+  var markerRoot = new THREE.Group();       // 测量标记层（随转台旋转）
+  modelRoot.add(gemRoot); modelRoot.add(markerRoot);
+  scene.add(modelRoot);
 
   /* --- 程序化棚拍环境贴图（金属质感的灵魂） --- */
   function makeStudioEnv() {
@@ -579,10 +583,11 @@
   /* ================= 模型管理 ================= */
   var model = null, modelTris = 0, modelParts = 0, modelMaterials = [];
   var selected = null;             // {type:'mesh', obj} | {type:'gem', obj}
-  var placedGems = [];             // {mesh, cutId, gemId, dia}
+  var placedGems = [];             // {mesh, setting, cutId, gemId, dia, settingType, metalId}
   var markers = [];                // 测量点
   var measureP1 = null;
   var mode = "none";
+  var splitAttempted = false;      // 清理模式：是否已尝试过连通性拆分
 
   function setStatus(s) { $("statusline").textContent = s; }
   function scaleMM() {
@@ -603,6 +608,7 @@
     while (gemRoot.children.length) gemRoot.remove(gemRoot.children[0]);
     while (markerRoot.children.length) markerRoot.remove(markerRoot.children[0]);
     model = null; placedGems = []; markers = []; measureP1 = null; selected = null;
+    splitAttempted = false;
   }
 
   function prepare(obj) {
@@ -644,6 +650,75 @@
       setStatus("解析失败");
       toast("GLB 解析失败：" + (err && err.message ? err.message : "未知错误"));
     });
+  }
+
+  /* ---------- 部件拆分：按网格连通性把整体拆成独立部件（珠宝建模师的清理工序） ---------- */
+  function splitIntoComponents() {
+    if (!model) return 0;
+    var made = 0;
+    var targets = [];
+    model.traverse(function (o) { if (o.isMesh && !o.userData.isGem && !o.userData.isSetting) targets.push(o); });
+    targets.forEach(function (meshObj) {
+      var g = meshObj.geometry, idx = g.index, pos = g.attributes.position;
+      var vertCount = pos.count;
+      var parent = new Uint32Array(vertCount);
+      for (var i = 0; i < vertCount; i++) parent[i] = i;
+      function find(a) { while (parent[a] !== a) { parent[a] = parent[parent[a]]; a = parent[a]; } return a; }
+      function union(a, b) { var ra = find(a), rb = find(b); if (ra !== rb) parent[ra] = rb; }
+      var triCount = idx ? idx.count / 3 : pos.count / 3;
+      function vid(i) { return idx ? idx.getX(i) : i; }
+      for (var t = 0; t < triCount; t++) {
+        var a = vid(t * 3), b = vid(t * 3 + 1), c = vid(t * 3 + 2);
+        union(a, b); union(a, c);
+      }
+      var rootTris = {};
+      for (var t2 = 0; t2 < triCount; t2++) {
+        var r = find(vid(t2 * 3));
+        (rootTris[r] = rootTris[r] || []).push(t2);
+      }
+      var groups = Object.keys(rootTris).map(function (k) { return rootTris[k]; });
+      if (groups.length <= 1) return;                   // 本来就是一个连通体
+      groups.sort(function (a, b) { return b.length - a.length; });
+      var newGeos = groups.map(function (tris) {
+        var geo = new THREE.BufferGeometry();
+        var posArr = [], norArr = [], uvArr = [];
+        var hasNor = !!g.attributes.normal, hasUv = !!g.attributes.uv;
+        for (var i = 0; i < tris.length; i++) {
+          var t3 = tris[i];
+          [vid(t3 * 3), vid(t3 * 3 + 1), vid(t3 * 3 + 2)].forEach(function (vi) {
+            posArr.push(pos.getX(vi), pos.getY(vi), pos.getZ(vi));
+            if (hasNor) norArr.push(g.attributes.normal.getX(vi), g.attributes.normal.getY(vi), g.attributes.normal.getZ(vi));
+            if (hasUv) uvArr.push(g.attributes.uv.getX(vi), g.attributes.uv.getY(vi));
+          });
+        }
+        geo.setAttribute("position", new THREE.Float32BufferAttribute(posArr, 3));
+        if (hasNor) geo.setAttribute("normal", new THREE.Float32BufferAttribute(norArr, 3));
+        if (hasUv) geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvArr, 2));
+        return geo;
+      });
+      // 用最大连通体替换原 mesh，其余作为兄弟节点加入
+      meshObj.geometry.dispose();
+      meshObj.geometry = newGeos[0];
+      meshObj.userData.partName = "主体";
+      var parentObj = meshObj.parent;
+      for (var gi = 1; gi < newGeos.length; gi++) {
+        var nm = new THREE.Mesh(newGeos[gi], meshObj.material);
+        nm.userData.isModel = true;
+        nm.userData.partName = "游离部件 " + gi;
+        nm.position.copy(meshObj.position);
+        parentObj.add(nm);
+        made++;
+      }
+    });
+    if (made > 0) { modelParts += made; analyze(); showDeliverySheet(); toast("拆分出 " + made + " 个独立部件，点击部件可删除"); }
+    else toast("模型本来就是单一连通体，无需拆分");
+    return made;
+  }
+  function deleteMeshObj(meshObj) {
+    meshObj.geometry.dispose();
+    if (meshObj.parent) meshObj.parent.remove(meshObj);
+    if (model) { analyze(); showDeliverySheet(); }
+    toast("部件已删除");
   }
 
   /* 示例：参数化素圈戒指（银色），可测指围/换材质/镶主石 */
@@ -731,6 +806,56 @@
     });
     var boundary = 0;
     Object.keys(edgeCount).forEach(function (k) { if (edgeCount[k] === 1) boundary++; });
+    /* 悬浮部件检测：顶点采样 → 网格哈希 → 并查集聚类 */
+    var samples = [];
+    var totalVerts = 0;
+    model.traverse(function (o) { if (o.isMesh && o.geometry) totalVerts += o.geometry.attributes.position.count; });
+    var stride = Math.max(1, Math.floor(totalVerts / 6000));
+    var tmpV = new THREE.Vector3();
+    model.traverse(function (o) {
+      if (!o.isMesh || !o.geometry) return;
+      var pa = o.geometry.attributes.position;
+      var ix = o.geometry.index;
+      var nn = ix ? ix.count : pa.count;
+      for (var i = 0; i < nn; i += stride) {
+        var vi = ix ? ix.getX(i) : i;
+        tmpV.fromBufferAttribute(pa, vi).applyMatrix4(o.matrixWorld);
+        samples.push([tmpV.x, tmpV.y, tmpV.z]);
+      }
+    });
+    var floating = 0;
+    if (samples.length > 30) {
+      var bb2 = new THREE.Box3().setFromObject(model);
+      var diag = bb2.getSize(new THREE.Vector3()).length() || 1;
+      var cell = diag * 0.045;
+      var grid = {};
+      var parent = [];
+      function ufFind(a) { while (parent[a] !== a) { parent[a] = parent[parent[a]]; a = parent[a]; } return a; }
+      function ufUnion(a, b) { var ra = ufFind(a), rb = ufFind(b); if (ra !== rb) parent[ra] = rb; }
+      samples.forEach(function (p, i) {
+        var gx = Math.round(p[0] / cell), gy = Math.round(p[1] / cell), gz = Math.round(p[2] / cell);
+        var key = gx + "_" + gy + "_" + gz;
+        if (grid[key] === undefined) { grid[key] = parent.length; parent.push(parent.length); }
+        var myId = parent.length; parent.push(myId);
+        for (var dx = -1; dx <= 1; dx++) {
+          for (var dy = -1; dy <= 1; dy++) {
+            for (var dz = -1; dz <= 1; dz++) {
+              var nk = (gx + dx) + "_" + (gy + dy) + "_" + (gz + dz);
+              if (grid[nk] !== undefined) ufUnion(myId, grid[nk]);
+            }
+          }
+        }
+        grid["pt" + i] = myId;
+      });
+      var clusterCount = {};
+      samples.forEach(function (p, i) {
+        var root = ufFind(grid["pt" + i]);
+        clusterCount[root] = (clusterCount[root] || 0) + 1;
+      });
+      var counts = Object.keys(clusterCount).map(function (k) { return clusterCount[k]; }).sort(function (a, b) { return b - a; });
+      var total = counts.reduce(function (a, b) { return a + b; }, 0);
+      counts.slice(1).forEach(function (c) { if (c > total * 0.02) floating++; });
+    }
     var sc = scaleMM();
     var volMm3 = Math.abs(vol) * sc * sc * sc;
     var box = new THREE.Box3().setFromObject(model);
@@ -743,7 +868,8 @@
       vol: (volMm3 / 1000).toFixed(2),
       silver: (volMm3 / 1000 * 10.36).toFixed(1),
       gold18k: (volMm3 / 1000 * 15.6).toFixed(1),
-      watertight: wtEl, watertightRaw: boundary === 0
+      watertight: wtEl, watertightRaw: boundary === 0,
+      floating: floating
     };
   }
   function showDeliverySheet() {
@@ -767,7 +893,8 @@
       '<tr><td>估重 · 18K 金 (g)</td><td>' + a.gold18k + '</td></tr>' +
       '<tr><td>水密性（可否出蜡模）</td><td>' + a.watertight + '</td></tr>' +
       '<tr><td>开放边界边</td><td>' + a.boundary.toLocaleString() + '</td></tr>' +
-      '</table><div class="hint">初检为几何粗查，替代不了工厂工程评审。</div></div>' +
+      '<tr><td>悬浮部件（工艺检查）</td><td>' + (a.floating === 0 ? '<span class="pill ok">无</span>' : '<span class="pill bad">' + a.floating + ' 处</span>') + '</td></tr>' +
+      '</table><div class="hint">悬浮部件 = 与主体无连接的独立网格团，出蜡模前必须焊接或删除。初检为几何粗查，替代不了工厂工程评审。</div></div>' +
       '<div class="card"><h4>镶嵌清单</h4><table>' + gemRows + '</table>' +
       '<div class="hint">在「💎 镶宝石」模式点击模型表面即可镶嵌，点击宝石可改切工/宝石/尺寸。</div></div>' +
       '<div class="card"><h4>导出</h4><div class="actions">' +
@@ -798,15 +925,33 @@
   function exportSTL() {
     if (!model) return;
     var sc = scaleMM();
-    var clone = model.clone(true);
-    clone.scale.multiplyScalar(sc);
-    var data = new THREE.STLExporter().parse(clone, { binary: true });
+    // 转台归零后按世界矩阵导出：金属模型 + 镶口，单位 mm；宝石不参与蜡模
+    var spinSave = spin; spin = false;
+    modelRoot.rotation.set(0, 0, 0);
+    modelRoot.updateMatrixWorld(true);
+    var group = new THREE.Group();
+    var toExport = [];
+    model.traverse(function (o) { if (o.isMesh) toExport.push(o); });
+    placedGems.forEach(function (rec) {
+      if (rec.setting) rec.setting.traverse(function (o) { if (o.isMesh) toExport.push(o); });
+    });
+    toExport.forEach(function (o) {
+      var m = new THREE.Mesh(o.geometry, null);
+      o.updateWorldMatrix(true, false);
+      o.matrixWorld.decompose(m.position, m.quaternion, m.scale);
+      m.scale.multiplyScalar(sc);
+      m.updateMatrix();
+      group.add(m);
+    });
+    group.updateMatrixWorld(true);
+    var data = new THREE.STLExporter().parse(group, { binary: true });
     var blob = new Blob([data], { type: "application/octet-stream" });
     var a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = "sketch2jewel_cast_" + "40mm.stl";
+    a.download = "sketch2jewel_cast_40mm.stl";
     a.click(); URL.revokeObjectURL(a.href);
-    toast("STL 已导出（单位 mm，不含镶嵌宝石）——可直接发工厂打蜡模");
+    spin = spinSave;
+    toast("STL 已导出（金属件 + 镶口，单位 mm）——可直接发工厂打蜡模");
   }
   function exportPNG() {
     renderer.render(scene, camera);
@@ -820,17 +965,19 @@
   var raycaster = new THREE.Raycaster();
   function setMode(m) {
     mode = m;
-    ["modeNone", "modeMetal", "modeGem", "modeRing"].forEach(function (id) {
+    ["modeNone", "modeMetal", "modeGem", "modeRing", "modeClean"].forEach(function (id) {
       $(id).classList.remove("mode-active");
     });
     if (m === "none") $("modeNone").classList.add("mode-active");
     if (m === "metal") $("modeMetal").classList.add("mode-active");
     if (m === "gem") $("modeGem").classList.add("mode-active");
     if (m === "ring") $("modeRing").classList.add("mode-active");
+    if (m === "clean") $("modeClean").classList.add("mode-active");
     var hint = $("modehint");
     if (m === "metal") { hint.textContent = "点击模型部件 → 更换金属材质"; hint.style.display = "block"; }
     else if (m === "gem") { hint.textContent = "先在右侧选切工与宝石，再点击模型表面镶嵌"; hint.style.display = "block"; }
     else if (m === "ring") { hint.textContent = measureP1 ? "点击戒圈内壁第二点" : "点击戒圈内壁第一点"; hint.style.display = "block"; }
+    else if (m === "clean") { hint.textContent = "首次点击自动拆分连通部件 · 再点部件可删除（如链子/飞边）"; hint.style.display = "block"; }
     else hint.style.display = "none";
     if (m !== "ring") { measureP1 = null; while (markerRoot.children.length) markerRoot.remove(markerRoot.children[0]); markers = []; }
     deselect();
@@ -839,6 +986,7 @@
   $("modeMetal").addEventListener("click", function () { setMode("metal"); });
   $("modeGem").addEventListener("click", function () { setMode("gem"); });
   $("modeRing").addEventListener("click", function () { setMode("ring"); });
+  $("modeClean").addEventListener("click", function () { setMode("clean"); });
 
   function pick(e) {
     var rect = renderer.domElement.getBoundingClientRect();
@@ -854,6 +1002,7 @@
     if (info.type === "mesh") showMetalPanel(obj, info.partName);
     else if (info.type === "gem") showGemPanel(obj);
     else if (info.type === "measure") showRingPanel(info.dia);
+    else if (info.type === "clean") showCleanPanel(obj, info.partName);
   }
   function deselect() {
     selected = null;
@@ -866,6 +1015,19 @@
     } else {
       showDeliverySheet();
     }
+  }
+  function showCleanPanel(obj, partName) {
+    $("panelTitle").textContent = "部件 · " + partName;
+    $("btnBack").style.display = "inline-block";
+    var tris = obj.geometry.index ? obj.geometry.index.count / 3 : obj.geometry.attributes.position.count / 3;
+    $("panelBody").innerHTML =
+      '<div class="card"><h4>部件检查</h4><table>' +
+      '<tr><td>名称</td><td>' + partName + '</td></tr>' +
+      '<tr><td>网格三角形</td><td>' + tris.toLocaleString() + '</td></tr>' +
+      '<tr><td>判定</td><td>' + (partName.indexOf("游离") >= 0 ? '<span class="pill bad">游离结构</span>' : '<span class="pill ok">主体或装饰</span>') + '</td></tr>' +
+      '</table><div class="hint">游离结构（如误生成的链子/飞边）不影响主体强度，可直接删除。</div></div>' +
+      '<div class="actions"><button id="btnDelPart" style="border-color:var(--bad);color:var(--bad)">删除这个部件</button></div>';
+    $("btnDelPart").addEventListener("click", function () { deleteMeshObj(obj); deselect(); });
   }
   $("btnBack").addEventListener("click", function () { setMode("none"); });
 
@@ -884,6 +1046,15 @@
       if (!hit || (!hit.object.userData.isModel && !hit.object.userData.isGem)) { toast("请点击模型表面放置宝石"); return; }
       if (!gemSel.gemId || !gemSel.cutId) { toast("先在右侧选择宝石与切工"); return; }
       placeGem(hit);
+    } else if (mode === "clean") {
+      if (!hit) { toast("请点击模型部件"); return; }
+      if (hit.object.userData.isGem || hit.object.userData.isSetting) { toast("这是镶嵌件，不能删"); return; }
+      if (!splitAttempted) {
+        splitAttempted = true;
+        splitIntoComponents();
+        return;
+      }
+      select(hit.object, { type: "clean", partName: hit.object.userData.partName || hit.object.name || "部件" });
     } else if (mode === "ring") {
       if (!hit) { toast("请点击戒圈内壁"); return; }
       addMeasurePoint(hit.point);
@@ -940,7 +1111,13 @@
       model.traverse(function (o) {
         if (o.isMesh) { (Array.isArray(o.material) ? o.material : [o.material]).forEach(function (mm) { mm.dispose(); }); o.material = nm.clone(); o.userData.metalId = m.id; }
       });
-      toast("已应用：" + m.nm + " → 整件");
+      placedGems.forEach(function (rec) {
+        rec.metalId = m.id;
+        if (rec.setting) rec.setting.traverse(function (o) {
+          if (o.isMesh) { o.material.dispose(); o.material = nm.clone(); }
+        });
+      });
+      toast("已应用：" + m.nm + " → 整件 + 镶口");
     }
     if (selected && selected.type === "mesh") showMetalPanel(selected.obj, selected.data.partName);
     else showMetalCatalog(null);
@@ -975,7 +1152,13 @@
   }
 
   /* ---------- 宝石面板 ---------- */
-  var gemSel = { cutId: "round", gemId: "diamond", dia: 6.5 };
+  var gemSel = { cutId: "round", gemId: "diamond", dia: 6.5, settingType: "bezel" };
+  function settingBtns(cur) {
+    return ["bezel", "prong", "none"].map(function (s) {
+      var nm = s === "bezel" ? "包镶" : (s === "prong" ? "爪镶" : "无镶口");
+      return '<span class="cutitem' + (cur === s ? " active" : "") + '" data-set="' + s + '">' + nm + '</span>';
+    }).join("");
+  }
   function gemThumb(gemId, cutId, dia) {
     var gem = GEMS.find(function (g) { return g.id === gemId; });
     var gg = gemGeometry(cutId, dia);
@@ -1012,7 +1195,19 @@
       '<div class="card"><h4>切工</h4><div class="cutlist">' + cutList + '</div>' +
       '<div class="hint" id="cutHint">' + cutInfo() + '</div></div>' +
       '<div class="card"><h4>宝石种类</h4><div class="gemlist">' + gemList + '</div></div>' +
-      '<div class="card"><h4>下一步</h4><div class="hint">选好后<b>点击模型表面</b>完成镶嵌。点击已镶的宝石可再编辑。</div></div>';
+      '<div class="card"><h4>镶口（连接结构）</h4><div class="cutlist">' + settingBtns(gemSel.settingType) + '</div>' +
+      '<div class="hint">包镶=金属包边包裹腰线；爪镶=4 卡爪扣住宝石。镶口随整件金属换色，并随 STL 一并导出。</div></div>' +
+      '<div class="card"><h4>下一步</h4><div class="hint">选好后<b>点击模型表面</b>完成镶嵌。点击已镶的宝石可再编辑。</div>' +
+      '<div style="margin-top:8px"><button id="btnAutoSet">✨ 按草图紫色标记自动镶嵌</button></div></div>';
+    var autoBtn = document.getElementById("btnAutoSet");
+    if (autoBtn) autoBtn.addEventListener("click", autoSetFromSketch);
+    Array.prototype.forEach.call(document.querySelectorAll('[data-set]'), function (el) {
+      el.addEventListener("click", function () {
+        gemSel.settingType = el.getAttribute("data-set");
+        Array.prototype.forEach.call(document.querySelectorAll('[data-set]'), function (x) { x.classList.remove("active"); });
+        el.classList.add("active");
+      });
+    });
     $("gemDia").addEventListener("input", function () {
       gemSel.dia = parseFloat(this.value);
       $("diaVal").textContent = gemSel.dia.toFixed(1);
@@ -1042,6 +1237,125 @@
     return "<b>" + cut.nm + "</b>（" + cut.facets + "）· " + gem.nm +
       " · 折射率 " + gem.ri + " · 密度 " + gem.sg + " g/cm³ · 摩氏硬度 " + gem.mohs;
   }
+  /* ---------- 按草图紫色标记自动镶嵌 ----------
+     分割脚本产出的 _sketchgems.json：紫色圈位置（归一化）→ 投影到模型屏幕 bbox → 射线命中表面 → 逐颗包镶 */
+  var PURPLE_SET = ["psapphire", "pspinel", "tanzanite", "amethyst"];
+  function autoSetFromSketch() {
+    if (!model) { toast("先载入模型"); return; }
+    fetch("_sketchgems.json").then(function (r) { return r.json(); }).then(function (meta) {
+      var rect = renderer.domElement.getBoundingClientRect();
+      var box = new THREE.Box3().setFromObject(model);
+      var minX = 1e9, minY = 1e9, maxX = -1e9, maxY = -1e9;
+      var corners = [];
+      for (var i = 0; i < 8; i++) {
+        corners.push(new THREE.Vector3(
+          i & 1 ? box.max.x : box.min.x,
+          i & 2 ? box.max.y : box.min.y,
+          i & 4 ? box.max.z : box.min.z));
+      }
+      corners.forEach(function (c) {
+        var v = c.clone().project(camera);
+        var px = rect.left + (v.x * 0.5 + 0.5) * rect.width;
+        var py = rect.top + (-v.y * 0.5 + 0.5) * rect.height;
+        minX = Math.min(minX, px); maxX = Math.max(maxX, px);
+        minY = Math.min(minY, py); maxY = Math.max(maxY, py);
+      });
+      var placed = 0, skipped = 0;
+      var idx = placedGems.length;
+      meta.gems.forEach(function (g) {
+        var sx = minX + g.cx * (maxX - minX);
+        var sy = minY + g.cy * (maxY - minY);
+        var mx = ((sx - rect.left) / rect.width) * 2 - 1;
+        var my = -((sy - rect.top) / rect.height) * 2 + 1;
+        raycaster.setFromCamera({ x: mx, y: my }, camera);
+        var hits = raycaster.intersectObject(model, true);
+        if (!hits.length) { skipped++; return; }
+        var hit = hits[0];
+        var dia = Math.max(3.5, Math.min(9, g.d_px / meta.size[0] * 40));
+        var rec = { cutId: "round", gemId: PURPLE_SET[idx % PURPLE_SET.length], dia: parseFloat(dia.toFixed(1)),
+                    settingType: "bezel", metalId: "silver925" };
+        idx++;
+        var gg = gemGeometry(rec.cutId, rec.dia);
+        var gem = GEMS.find(function (x2) { return x2.id === rec.gemId; });
+        var mesh = new THREE.Mesh(gg.geo, makeGem(gem, rec.cutId));
+        mesh.scale.setScalar(1 / scaleMM());
+        var n = hit.face.normal.clone().transformDirection(hit.object.matrixWorld);
+        mesh.position.copy(hit.point.clone().add(n.clone().multiplyScalar(gg.height * 0.3 / scaleMM())));
+        mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), n);
+        mesh.userData = { isGem: true, cutId: rec.cutId, gemId: rec.gemId, dia: rec.dia };
+        gemRoot.add(mesh);
+        rec.mesh = mesh;
+        placedGems.push(rec);
+        rebuildSetting(rec);
+        placed++;
+      });
+      toast("草图识别 " + meta.gems.length + " 颗：镶嵌 " + placed + (skipped ? "，跳过 " + skipped + "（射线未命中）" : ""));
+      showGemCatalog(null);
+    }).catch(function (e) { toast("草图识别数据读取失败：" + e); });
+  }
+  /* ---------- 镶口（包镶 / 爪镶）：宝石与金属件的连接结构 ---------- */
+  function buildSetting(rec, gemDef) {
+    var grp = new THREE.Group();
+    if (rec.settingType === "none") return grp;
+    var gg = gemGeometry(rec.cutId, rec.dia);
+    var girdleY = gg.height * 0.40;                  // 腰线高度（mm）
+    var metal = (function () {
+      var mid = rec.metalId || "silver925";
+      var m = METALS.find(function (x) { return x.id === mid; }) || METALS[2];
+      return makeMetal(m);
+    })();
+    var rG = rec.dia * 0.5;
+    if (rec.settingType === "bezel") {
+      var h = rec.dia * 0.30;
+      var wall = rec.dia * 0.07;
+      var cup = new THREE.Mesh(
+        new THREE.CylinderGeometry(rG + wall, rG + wall * 1.35, h, 28, 1, false),
+        metal);
+      cup.position.y = girdleY - h / 2 - rec.dia * 0.02;
+      grp.add(cup);
+      var rim = new THREE.Mesh(
+        new THREE.TorusGeometry(rG + wall * 0.5, wall * 0.85, 10, 28),
+        metal);
+      rim.rotation.x = Math.PI / 2;
+      rim.position.y = girdleY - rec.dia * 0.01;
+      grp.add(rim);
+    } else {                                          // 爪镶：4 卡爪 + 座圈
+      var seat = new THREE.Mesh(
+        new THREE.TorusGeometry(rG * 0.94, rec.dia * 0.045, 10, 24),
+        metal);
+      seat.rotation.x = Math.PI / 2;
+      seat.position.y = girdleY - rec.dia * 0.14;
+      grp.add(seat);
+      for (var i = 0; i < 4; i++) {
+        var a = Math.PI / 4 + i * Math.PI / 2;
+        var ph = gg.height * 0.52;
+        var prong = new THREE.Mesh(
+          new THREE.CylinderGeometry(rec.dia * 0.045, rec.dia * 0.055, ph, 10),
+          metal);
+        prong.position.set(Math.cos(a) * rG * 0.92, girdleY - rec.dia * 0.10 + ph * 0.18, Math.sin(a) * rG * 0.92);
+        prong.rotation.z = -Math.cos(a) * 0.10;
+        prong.rotation.x = Math.sin(a) * 0.10;
+        grp.add(prong);
+        var tip = new THREE.Mesh(new THREE.SphereGeometry(rec.dia * 0.05, 10, 8), metal);
+        tip.position.set(Math.cos(a) * rG * 0.86, girdleY - rec.dia * 0.10 + ph * 0.18 + ph * 0.5, Math.sin(a) * rG * 0.86);
+        grp.add(tip);
+      }
+    }
+    return grp;
+  }
+  function rebuildSetting(rec) {
+    if (rec.setting) {
+      rec.setting.traverse(function (o) { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); });
+      gemRoot.remove(rec.setting);
+    }
+    rec.setting = buildSetting(rec, null);
+    rec.setting.position.copy(rec.mesh.position);
+    rec.setting.quaternion.copy(rec.mesh.quaternion);
+    rec.setting.scale.copy(rec.mesh.scale);
+    rec.setting.traverse(function (o) { o.userData.isSetting = true; });
+    gemRoot.add(rec.setting);
+  }
+
   function placeGem(hit) {
     var gg = gemGeometry(gemSel.cutId, gemSel.dia);
     var gem = GEMS.find(function (g) { return g.id === gemSel.gemId; });
@@ -1056,8 +1370,11 @@
     mesh.quaternion.copy(q);
     mesh.userData = { isGem: true, cutId: gemSel.cutId, gemId: gemSel.gemId, dia: gemSel.dia };
     gemRoot.add(mesh);
-    placedGems.push({ mesh: mesh, cutId: gemSel.cutId, gemId: gemSel.gemId, dia: gemSel.dia });
-    toast("已镶嵌 " + gem.nm + "（" + CUTS.find(function (c) { return c.id === gemSel.cutId; }).nm + " " + gemSel.dia + "mm）");
+    var rec = { mesh: mesh, cutId: gemSel.cutId, gemId: gemSel.gemId, dia: gemSel.dia,
+                settingType: gemSel.settingType || "bezel", metalId: "silver925" };
+    placedGems.push(rec);
+    rebuildSetting(rec);
+    toast("已镶嵌 " + gem.nm + "（" + CUTS.find(function (c) { return c.id === gemSel.cutId; }).nm + " " + gemSel.dia + "mm · " + (rec.settingType === "bezel" ? "包镶" : "爪镶") + "）");
     showGemCatalog(null);
   }
   function updateGem(mesh) {
@@ -1070,6 +1387,7 @@
     mesh.material = makeGem(gem, rec.cutId);
     mesh.userData.cutId = rec.cutId; mesh.userData.gemId = rec.gemId; mesh.userData.dia = rec.dia;
     mesh.position.copy(pos); mesh.quaternion.copy(q);
+    rebuildSetting(rec);
   }
   function showGemPanel(mesh) {
     var rec = placedGems.find(function (g) { return g.mesh === mesh; });
@@ -1097,8 +1415,10 @@
       '<tr><td>全高 (mm)</td><td>' + size.y.toFixed(2) + '</td></tr>' +
       '<tr><td>标称直径</td><td>' + rec.dia.toFixed(1) + ' mm</td></tr>' +
       '<tr><td>估算克拉</td><td>约 ' + ct.toFixed(2) + ' ct</td></tr>' +
+      '<tr><td>镶口</td><td>' + (rec.settingType === "bezel" ? "包镶" : (rec.settingType === "prong" ? "爪镶" : "无")) + '</td></tr>' +
       '<tr><td>折射率 / 硬度</td><td>' + gem.ri + ' / 摩氏 ' + gem.mohs + '</td></tr>' +
       '</table><div class="hint">克拉按实际网格体积 × 密度换算（1 ct = 0.2 g）。</div></div>' +
+      '<div class="card"><h4>镶口（连接结构）</h4><div class="cutlist">' + settingBtns(rec.settingType) + '</div></div>' +
       '<div class="card"><h4>切工</h4><div class="cutlist">' + cutList + '</div></div>' +
       '<div class="card"><h4>换宝石</h4><div class="gemlist">' + gemList + '</div></div>' +
       '<div class="card"><h4>尺寸</h4><label class="f">主石直径 <span id="diaVal2">' + rec.dia.toFixed(1) + '</span> mm</label>' +
@@ -1116,6 +1436,12 @@
         updateGem(mesh); showGemPanel(mesh);
       });
     });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-set]'), function (el) {
+      el.addEventListener("click", function () {
+        rec.settingType = el.getAttribute("data-set");
+        rebuildSetting(rec); showGemPanel(mesh);
+      });
+    });
     $("gemDia2").addEventListener("input", function () {
       rec.dia = parseFloat(this.value);
       $("diaVal2").textContent = rec.dia.toFixed(1);
@@ -1124,6 +1450,10 @@
     $("btnDelGem").addEventListener("click", function () {
       gemRoot.remove(mesh);
       mesh.geometry.dispose(); mesh.material.dispose();
+      if (rec.setting) {
+        rec.setting.traverse(function (o) { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); });
+        gemRoot.remove(rec.setting);
+      }
       placedGems = placedGems.filter(function (g) { return g.mesh !== mesh; });
       toast("宝石已取下");
       deselect();
@@ -1368,7 +1698,8 @@
         });
     }).then(function (imgUrl) {
       apilog("⑤ 创建 img-to-3d 任务（" + engine + " / " + face + " 面）…");
-      var payload = JSON.stringify({ imgs: [imgUrl], version: engine, faceCount: face, outputFormat: ["glb"], enablePbr: true, aiPredictSize: true });
+      var payload = JSON.stringify({ imgs: [imgUrl], version: engine, faceCount: face, outputFormat: ["glb"], enablePbr: true, aiPredictSize: true,
+        prompt: "metal jewelry pendant only: sword, beaded loops, three gem settings. no chain, no necklace" });
       return apiFetch(base + "/lux3d/v1/generate/img-to-3d/task/create", {
         method: "POST", headers: { Authorization: key, "Content-Type": "application/json" }, body: payload
       }).then(function (r) {
@@ -1453,7 +1784,9 @@
       mesh.position.set(c.x, top, c.z);
       mesh.userData = { isGem: true, cutId: cutId || "round", gemId: gemId || "ruby", dia: dia || 6.5 };
       gemRoot.add(mesh);
-      placedGems.push({ mesh: mesh, cutId: cutId || "round", gemId: gemId || "ruby", dia: dia || 6.5 });
+      var rec = { mesh: mesh, cutId: cutId || "round", gemId: gemId || "ruby", dia: dia || 6.5, settingType: "bezel", metalId: "silver925" };
+      placedGems.push(rec);
+      rebuildSetting(rec);
       return true;
     },
     state: function () { return { gems: placedGems.length, mode: mode }; },
@@ -1466,6 +1799,19 @@
       return hits.slice(0, 3).map(function (h) {
         return { name: h.object.name || h.object.uuid.slice(0, 6), isGem: !!h.object.userData.isGem, isModel: !!h.object.userData.isModel, dist: Math.round(h.distance * 100) / 100 };
       });
+    },
+    probeAnyHit: function () {
+      var rect = renderer.domElement.getBoundingClientRect();
+      for (var dx = -0.35; dx <= 0.35; dx += 0.04) {
+        for (var dy = -0.15; dy <= 0.3; dy += 0.04) {
+          raycaster.setFromCamera({ x: dx, y: -dy }, camera);
+          var hits = raycaster.intersectObject(model, true);
+          if (hits.length) {
+            return { x: rect.left + (dx * 0.5 + 0.5) * rect.width, y: rect.top + (dy * 0.5 + 0.5) * rect.height };
+          }
+        }
+      }
+      return null;
     },
     screenOf: function (kind, k) {
       var rect = renderer.domElement.getBoundingClientRect();
